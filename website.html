@@ -1,0 +1,3161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Asset Marketplace | Fixed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #6c757d;
+            --secondary: #495057;
+            --accent: #adb5bd;
+            --dark: #212529;
+            --darker: #1a1d21;
+            --light: #e9ecef;
+            --medium: #ced4da;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        body {
+            overflow-x: hidden;
+            background: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--light);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 2.2rem;
+            color: var(--accent);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav a {
+            color: var(--medium);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        nav a:hover {
+            color: var(--accent);
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        nav a:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .auth-button {
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .login-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .login-btn:hover {
+            background: rgba(173, 181, 189, 0.1);
+        }
+        
+        .signup-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+        }
+        
+        .signup-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--medium);
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: var(--medium);
+            line-height: 1.6;
+        }
+        
+        .tabs-container {
+            background: rgba(33, 37, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(108, 117, 125, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+            padding-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            background: rgba(108, 117, 125, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: var(--medium);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab:hover {
+            background: rgba(108, 117, 125, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .asset-card {
+            background: rgba(33, 37, 41, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(108, 117, 125, 0.1);
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent);
+        }
+        
+        .asset-preview {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .asset-preview img, .asset-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .asset-preview .preview-placeholder {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+        
+        .asset-info {
+            padding: 1.5rem;
+        }
+        
+        .asset-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+        }
+        
+        .asset-info p {
+            color: var(--medium);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .asset-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--medium);
+        }
+        
+        .stat i {
+            color: var(--accent);
+        }
+        
+        .asset-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .asset-price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+        .free-badge {
+            background: var(--success);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .asset-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(173, 181, 189, 0.1);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #bd2130;
+        }
+        
+        .btn-like {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-like.liked {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--dark);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 50px rgba(108, 117, 125, 0.3);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--medium);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent);
+        }
+        
+        .modal h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--medium);
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .form-submit:hover {
+            background: var(--secondary);
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .file-upload-preview {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .file-upload-preview img, .file-upload-preview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .file-upload-preview i {
+            font-size: 3rem;
+            color: var(--accent);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(108, 117, 125, 0.3);
+            color: var(--medium);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--medium);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: var(--dark);
+            color: var(--light);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.success {
+            border-left-color: var(--success);
+        }
+        
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+        
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-content {
+            background: var(--dark);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 800px;
+            border: 1px solid var(--accent);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .preview-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .preview-media {
+            width: 100%;
+            height: 300px;
+            background: var(--darker);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--accent);
+        }
+        
+        .preview-details h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .preview-details p {
+            color: var(--medium);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .preview-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .preview-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--medium);
+        }
+        
+        .preview-stat i {
+            color: var(--accent);
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .comments-section {
+            margin-top: 2rem;
+        }
+        
+        .comments-section h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .comment-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .comment-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .comment {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comment-user {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .comment-date {
+            font-size: 0.8rem;
+            color: var(--medium);
+        }
+        
+        .comment-text {
+            color: var(--medium);
+            line-height: 1.5;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .comment-action {
+            background: transparent;
+            border: none;
+            color: var(--medium);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .comment-action:hover {
+            color: var(--accent);
+        }
+        
+        .upload-container {
+            background: rgba(33, 37, 41, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px dashed var(--accent);
+        }
+        
+        .upload-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .community-assets-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--medium);
+        }
+        
+        .community-assets-empty i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        /* Profile customization styles */
+        .profile-container {
+            background: rgba(33, 37, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(108, 117, 125, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .profile-avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+        }
+        
+        /* Admin panel styles */
+        .admin-panel {
+            background: rgba(33, 37, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(108, 117, 125, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+            padding-bottom: 1rem;
+        }
+        
+        .admin-tab {
+            padding: 0.8rem 1.5rem;
+            background: rgba(108, 117, 125, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: var(--medium);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-tab:hover {
+            background: rgba(108, 117, 125, 0.2);
+        }
+        
+        .admin-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .admin-content {
+            display: none;
+        }
+        
+        .admin-content.active {
+            display: block;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+        }
+        
+        .admin-table th {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .admin-table tr:hover {
+            background: rgba(108, 117, 125, 0.1);
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Download History Styles */
+        .download-history {
+            background: rgba(33, 37, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(108, 117, 125, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item-info {
+            flex: 1;
+        }
+        
+        .history-item-name {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .history-item-date {
+            font-size: 0.8rem;
+            color: var(--medium);
+        }
+        
+        .history-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--medium);
+        }
+        
+        .history-empty i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .assets-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .preview-stats {
+                flex-wrap: wrap;
+            }
+            
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="content">
+        <header>
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <span>3D ASSET MARKET</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" id="uploadNavLink"><i class="fas fa-upload"></i> Upload</a></li>
+                    <li><a href="#" id="profileNavLink"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="#" id="downloadHistoryLink"><i class="fas fa-history"></i> Downloads</a></li>
+                    <li><a href="#" id="adminNavLink" style="display: none;"><i class="fas fa-crown"></i> Admin Panel</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions" id="userActions">
+                <button class="auth-button login-btn" id="loginButton">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button class="auth-button signup-btn" id="signupButton">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+            </div>
+        </header>
+        
+        <!-- Profile Customization Section (hidden by default) -->
+        <div class="profile-container" id="profileContainer">
+            <div class="profile-header">
+                <h2><i class="fas fa-user-cog"></i> Customize Your Profile</h2>
+            </div>
+            <div class="profile-form">
+                <div class="profile-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Avatar Preview" class="avatar-preview" id="avatarPreview">
+                    <button class="btn btn-secondary" id="changeAvatarBtn">
+                        <i class="fas fa-camera"></i> Change Avatar
+                    </button>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                </div>
+                <div class="profile-details">
+                    <div class="form-group">
+                        <label for="profileName">Display Name</label>
+                        <input type="text" id="profileName" placeholder="Enter your display name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileBio">Bio</label>
+                        <textarea id="profileBio" placeholder="Tell us about yourself" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileWebsite">Website</label>
+                        <input type="url" id="profileWebsite" placeholder="https://yourwebsite.com">
+                    </div>
+                    <button class="btn btn-primary" id="saveProfileBtn">
+                        <i class="fas fa-save"></i> Save Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Download History Section (hidden by default) -->
+        <div class="download-history" id="downloadHistory">
+            <div class="history-header">
+                <h2><i class="fas fa-history"></i> Download History</h2>
+            </div>
+            <div id="downloadHistoryList">
+                <!-- Download history items will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Admin Panel Section (hidden by default) -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="admin-header">
+                <h2><i class="fas fa-crown"></i> Admin Panel</h2>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-admin-tab="users">
+                    <i class="fas fa-users"></i> Users
+                </button>
+                <button class="admin-tab" data-admin-tab="assets">
+                    <i class="fas fa-cube"></i> Assets
+                </button>
+                <button class="admin-tab" data-admin-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </div>
+            
+            <div class="admin-content active" id="adminUsers">
+                <h3>User Management</h3>
+                <p>Manage users and assign admin privileges</p>
+                
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Admin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="admin-content" id="adminAssets">
+                <h3>Asset Management</h3>
+                <p>Manage all assets in the marketplace</p>
+                
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Uploader</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetsTableBody">
+                        <!-- Assets will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="admin-content" id="adminSettings">
+                <h3>Admin Settings</h3>
+                <p>Configure admin settings</p>
+                
+                <div class="form-group">
+                    <label for="adminEmail">Admin Email</label>
+                    <input type="email" id="adminEmail" placeholder="Enter email to grant admin access">
+                    <button class="btn btn-primary" id="addAdminBtn" style="margin-top: 0.5rem;">
+                        <i class="fas fa-plus"></i> Add Admin
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <h4>Current Admins</h4>
+                    <ul id="adminList">
+                        <!-- Admin list will be populated here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <section class="hero">
+            <h1>Premium 3D Assets Marketplace</h1>
+            <p>Discover thousands of high-quality 3D models, textures, and animations for your next project. Download free assets or purchase premium content from talented creators worldwide.</p>
+        </section>
+        
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="tab1">
+                    <i class="fas fa-star"></i> Featured
+                </button>
+                <button class="tab" data-tab="tab2">
+                    <i class="fas fa-download"></i> Free Assets
+                </button>
+                <button class="tab" data-tab="tab3">
+                    <i class="fas fa-shopping-cart"></i> Premium Assets
+                </button>
+                <button class="tab" data-tab="tab4">
+                    <i class="fas fa-video"></i> Animations
+                </button>
+                <button class="tab" data-tab="tab5">
+                    <i class="fas fa-users"></i> Community Assets
+                </button>
+            </div>
+            
+            <div class="tab-content active" id="tab1">
+                <h2><i class="fas fa-star"></i> Featured Assets</h2>
+                <p>Check out our curated selection of top-quality assets</p>
+                
+                <div class="assets-grid">
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Sci-Fi Spaceship</h3>
+                            <p>Highly detailed spacecraft model with 4K textures and customizable parts.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">245</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">89</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">42</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$24.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Sci-Fi Spaceship" data-description="Highly detailed spacecraft model with 4K textures and customizable parts." data-price="$24.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Sci-Fi Spaceship" data-price="24.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-dragon"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Fantasy Dragon</h3>
+                            <p>Animated dragon character with flight and attack animations, including rigging.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">512</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">167</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">98</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$39.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Fantasy Dragon" data-description="Animated dragon character with flight and attack animations, including rigging." data-price="$39.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Fantasy Dragon" data-price="39.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-city"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Modular City Pack</h3>
+                            <p>Build your own city with this set of modular buildings and props.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">378</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">124</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">67</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$49.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Modular City Pack" data-description="Build your own city with this set of modular buildings and props." data-price="$49.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Modular City Pack" data-price="49.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab2">
+                <h2><i class="fas fa-download"></i> Free Assets</h2>
+                <p>Download these high-quality assets for free</p>
+                
+                <div class="assets-grid">
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-tree"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Nature Pack</h3>
+                            <p>Set of 10 realistic trees and plants for your environment scenes.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">892</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">543</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">231</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="free-badge">FREE</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Nature Pack" data-description="Set of 10 realistic trees and plants for your environment scenes." data-price="FREE"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary download-btn" data-asset="Nature Pack"><i class="fas fa-download"></i> Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Crystal Collection</h3>
+                            <p>Set of 8 fantasy crystals with glowing materials and textures.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">654</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">387</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">176</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="free-badge">FREE</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Crystal Collection" data-description="Set of 8 fantasy crystals with glowing materials and textures." data-price="FREE"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary download-btn" data-asset="Crystal Collection"><i class="fas fa-download"></i> Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Basic UI Kit</h3>
+                            <p>Minimalistic UI elements for your AR/VR applications.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">723</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">421</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">198</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="free-badge">FREE</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Basic UI Kit" data-description="Minimalistic UI elements for your AR/VR applications." data-price="FREE"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary download-btn" data-asset="Basic UI Kit"><i class="fas fa-download"></i> Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab3">
+                <h2><i class="fas fa-shopping-cart"></i> Premium Assets</h2>
+                <p>Purchase these high-quality premium assets</p>
+                
+                <div class="assets-grid">
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-user-astronaut"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Cyberpunk Character</h3>
+                            <p>Fully rigged character with cybernetic enhancements and animations.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">421</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">132</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">87</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$29.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Cyberpunk Character" data-description="Fully rigged character with cybernetic enhancements and animations." data-price="$29.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Cyberpunk Character" data-price="29.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-home"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Modern House</h3>
+                            <p>Detailed architectural visualization of a modern luxury home.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">367</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">98</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">54</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$34.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Modern House" data-description="Detailed architectural visualization of a modern luxury home." data-price="$34.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Modern House" data-price="34.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-car"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Sports Car</h3>
+                            <p>High-poly sports car model with realistic materials and customization options.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">512</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">145</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">76</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$42.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Sports Car" data-description="High-poly sports car model with realistic materials and customization options." data-price="$42.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Sports Car" data-price="42.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab4">
+                <h2><i class="fas fa-video"></i> Animations</h2>
+                <p>Browse our collection of animation packs and motion assets</p>
+                
+                <div class="assets-grid">
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-running"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Character Animation Pack</h3>
+                            <p>Collection of 20 professional motion-captured animations for characters.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">623</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">187</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">92</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$36.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Character Animation Pack" data-description="Collection of 20 professional motion-captured animations for characters." data-price="$36.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Character Animation Pack" data-price="36.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-hand-rock"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>Gesture Pack</h3>
+                            <p>Set of 15 hand gestures and finger motions for realistic character interaction.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">487</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">132</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">67</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$19.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="Gesture Pack" data-description="Set of 15 hand gestures and finger motions for realistic character interaction." data-price="$19.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="Gesture Pack" data-price="19.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card">
+                        <div class="asset-preview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                        </div>
+                        <div class="asset-info">
+                            <h3>VFX Elements</h3>
+                            <p>Collection of 50 visual effects animations for games and films.</p>
+                            <div class="asset-stats">
+                                <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">542</span></div>
+                                <div class="stat"><i class="fas fa-download"></i> <span class="download-count">176</span></div>
+                                <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">83</span></div>
+                            </div>
+                            <div class="asset-meta">
+                                <div class="asset-price">$45.99</div>
+                                <div class="asset-actions">
+                                    <button class="btn btn-secondary preview-btn" data-asset="VFX Elements" data-description="Collection of 50 visual effects animations for games and films." data-price="$45.99"><i class="fas fa-eye"></i> Preview</button>
+                                    <button class="btn btn-primary purchase-btn" data-asset="VFX Elements" data-price="45.99"><i class="fas fa-shopping-cart"></i> Buy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab5">
+                <h2><i class="fas fa-users"></i> Community Assets</h2>
+                <p>Assets uploaded by our community members</p>
+                
+                <div class="upload-container">
+                    <div class="upload-header">
+                        <h3><i class="fas fa-cloud-upload-alt"></i> Upload Your Asset</h3>
+                        <button class="btn btn-primary" id="showUploadForm">
+                            <i class="fas fa-plus"></i> Upload Asset
+                        </button>
+                    </div>
+                    <p>Share your creations with the community. Upload images, videos, or GIFs for preview and .rbxl/.rbxm files for download.</p>
+                </div>
+                
+                <div class="assets-grid" id="communityAssetsGrid">
+                    <div class="community-assets-empty">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No Community Assets Yet</h3>
+                        <p>Be the first to upload an asset to the community!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-question-circle"></i> Help Center</a>
+                    <a href="#"><i class="fas fa-book"></i> Documentation</a>
+                    <a href="#"><i class="fas fa-users"></i> Community</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+                <p>© 2023 3D Asset Marketplace. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeLoginModal">&times;</button>
+            <h2><i class="fas fa-sign-in-alt"></i> Login to Your Account</h2>
+            <div class="form-group">
+                <label for="loginEmail">Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="form-submit" id="loginSubmit">Login</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--medium);">
+                Don't have an account? <a href="#" style="color: var(--accent);" id="switchToSignup">Sign up</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeSignupModal">&times;</button>
+            <h2><i class="fas fa-user-plus"></i> Create an Account</h2>
+            <div class="form-group">
+                <label for="signupName">Full Name</label>
+                <input type="text" id="signupName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Email Address</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password">
+            </div>
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password</label>
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm your password">
+            </div>
+            <button class="form-submit" id="signupSubmit">Create Account</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--medium);">
+                Already have an account? <a href="#" style="color: var(--accent);" id="switchToLogin">Login</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeUploadModal">&times;</button>
+            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Community Asset</h2>
+            
+            <div class="form-group">
+                <label for="assetTitle">Asset Title</label>
+                <input type="text" id="assetTitle" placeholder="Enter a title for your asset">
+            </div>
+            
+            <div class="form-group">
+                <label for="assetDescription">Description</label>
+                <textarea id="assetDescription" placeholder="Describe your asset"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="assetPreview">Preview Image/Video/GIF</label>
+                <div class="file-upload">
+                    <div class="file-upload-preview" id="previewContainer">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <input type="file" id="assetPreview" accept="image/*,video/*,.gif" style="display: none;">
+                    <button class="btn btn-secondary" id="triggerPreviewUpload">
+                        <i class="fas fa-upload"></i> Select Preview File
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="assetFile">Asset File (.rbxl or .rbxm only)</label>
+                <div class="file-upload">
+                    <input type="file" id="assetFile" accept=".rbxl,.rbxm" style="display: none;">
+                    <button class="btn btn-secondary" id="triggerAssetUpload">
+                        <i class="fas fa-upload"></i> Select Asset File
+                    </button>
+                    <span id="selectedAssetFile">No file selected</span>
+                </div>
+            </div>
+            
+            <button class="form-submit" id="uploadSubmit">Upload Asset</button>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-content">
+            <div class="preview-header">
+                <h2 id="previewTitle">Asset Preview</h2>
+                <button class="close-modal" id="closePreviewModal">&times;</button>
+            </div>
+            <div class="preview-body">
+                <div class="preview-media" id="previewMedia">
+                    <i class="fas fa-cube" id="previewIcon"></i>
+                </div>
+                <div class="preview-details">
+                    <h3 id="previewName"></h3>
+                    <p id="previewDescription"></p>
+                    
+                    <div class="preview-stats">
+                        <div class="preview-stat">
+                            <i class="fas fa-eye"></i>
+                            <span id="previewViews">0</span> views
+                        </div>
+                        <div class="preview-stat">
+                            <i class="fas fa-download"></i>
+                            <span id="previewDownloads">0</span> downloads
+                        </div>
+                        <div class="preview-stat">
+                            <i class="fas fa-heart"></i>
+                            <span id="previewLikes">0</span> likes
+                        </div>
+                    </div>
+                    
+                    <div class="preview-actions">
+                        <button class="btn btn-secondary" id="closePreviewBtn">Close</button>
+                        <button class="btn btn-like" id="likeBtn">
+                            <i class="fas fa-heart"></i> Like
+                        </button>
+                        <button class="btn btn-primary" id="previewActionBtn">
+                            <i class="fas fa-shopping-cart"></i> Buy Now
+                        </button>
+                    </div>
+                    
+                    <div class="comments-section">
+                        <h4><i class="fas fa-comments"></i> Comments</h4>
+                        
+                        <div class="comment-form">
+                            <input type="text" class="comment-input" id="commentInput" placeholder="Add a comment...">
+                            <button class="btn btn-primary" id="submitComment">Submit</button>
+                        </div>
+                        
+                        <div class="comments-list" id="commentsList">
+                            <!-- Comments will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // App State
+        let currentUser = null;
+        let purchasedAssets = [];
+        let communityAssets = [];
+        let currentAsset = null;
+        let likedAssets = [];
+        let adminUsers = JSON.parse(localStorage.getItem('adminUsers')) || ['wow1ypii@gmail.com'];
+        let marketplaceUsers = JSON.parse(localStorage.getItem('marketplaceUsers')) || [];
+        let assetComments = JSON.parse(localStorage.getItem('assetComments')) || {};
+        
+        // DOM Elements
+        const loginButton = document.getElementById('loginButton');
+        const signupButton = document.getElementById('signupButton');
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const uploadModal = document.getElementById('uploadModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const closeSignupModal = document.getElementById('closeSignupModal');
+        const closeUploadModal = document.getElementById('closeUploadModal');
+        const switchToSignup = document.getElementById('switchToSignup');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginSubmit = document.getElementById('loginSubmit');
+        const signupSubmit = document.getElementById('signupSubmit');
+        const userActions = document.getElementById('userActions');
+        const previewModal = document.getElementById('previewModal');
+        const closePreviewModal = document.getElementById('closePreviewModal');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const previewActionBtn = document.getElementById('previewActionBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const showUploadForm = document.getElementById('showUploadForm');
+        const triggerPreviewUpload = document.getElementById('triggerPreviewUpload');
+        const triggerAssetUpload = document.getElementById('triggerAssetUpload');
+        const assetPreview = document.getElementById('assetPreview');
+        const assetFile = document.getElementById('assetFile');
+        const uploadSubmit = document.getElementById('uploadSubmit');
+        const previewContainer = document.getElementById('previewContainer');
+        const selectedAssetFile = document.getElementById('selectedAssetFile');
+        const communityAssetsGrid = document.getElementById('communityAssetsGrid');
+        const commentInput = document.getElementById('commentInput');
+        const submitComment = document.getElementById('submitComment');
+        const commentsList = document.getElementById('commentsList');
+        const downloadHistoryLink = document.getElementById('downloadHistoryLink');
+        const downloadHistory = document.getElementById('downloadHistory');
+        const downloadHistoryList = document.getElementById('downloadHistoryList');
+        
+        // New elements for profile customization
+        const profileNavLink = document.getElementById('profileNavLink');
+        const uploadNavLink = document.getElementById('uploadNavLink');
+        const profileContainer = document.getElementById('profileContainer');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+        const avatarUpload = document.getElementById('avatarUpload');
+        const profileName = document.getElementById('profileName');
+        const profileBio = document.getElementById('profileBio');
+        const profileWebsite = document.getElementById('profileWebsite');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        
+        // Admin panel elements
+        const adminNavLink = document.getElementById('adminNavLink');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminTabs = document.querySelectorAll('.admin-tab');
+        const adminContents = document.querySelectorAll('.admin-content');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const assetsTableBody = document.getElementById('assetsTableBody');
+        const adminEmail = document.getElementById('adminEmail');
+        const addAdminBtn = document.getElementById('addAdminBtn');
+        const adminList = document.getElementById('adminList');
+        
+        // Initialize the application
+        function initApp() {
+            // Set up tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Hide profile and admin containers if they're visible
+                    profileContainer.style.display = 'none';
+                    adminPanel.style.display = 'none';
+                    downloadHistory.style.display = 'none';
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                    
+                    // If community tab is selected, render community assets
+                    if (tab.dataset.tab === 'tab5') {
+                        renderCommunityAssets();
+                    }
+                });
+            });
+            
+            // Set up admin tab functionality
+            adminTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all admin tabs and content
+                    adminTabs.forEach(t => t.classList.remove('active'));
+                    adminContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    document.getElementById('admin' + tab.dataset.adminTab.charAt(0).toUpperCase() + tab.dataset.adminTab.slice(1)).classList.add('active');
+                    
+                    // Load data if needed
+                    if (tab.dataset.adminTab === 'users') {
+                        loadUsersTable();
+                    } else if (tab.dataset.adminTab === 'assets') {
+                        loadAssetsTable();
+                    } else if (tab.dataset.adminTab === 'settings') {
+                        loadAdminSettings();
+                    }
+                });
+            });
+            
+            // Make Upload nav link switch to Community Assets tab
+            uploadNavLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Hide profile and admin containers if they're visible
+                profileContainer.style.display = 'none';
+                adminPanel.style.display = 'none';
+                downloadHistory.style.display = 'none';
+                
+                // Activate Community Assets tab
+                document.querySelector('[data-tab="tab5"]').classList.add('active');
+                document.getElementById('tab5').classList.add('active');
+                
+                // If user is not logged in, show login modal
+                if (!currentUser) {
+                    showNotification('Please login to upload assets', 'error');
+                    loginModal.style.display = 'flex';
+                } else {
+                    // Show upload form
+                    uploadModal.style.display = 'flex';
+                }
+                
+                // Render community assets
+                renderCommunityAssets();
+            });
+            
+            // Profile link functionality
+            profileNavLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                if (!currentUser) {
+                    showNotification('Please login to access your profile', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                // Hide all tab contents and admin panel
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                adminPanel.style.display = 'none';
+                downloadHistory.style.display = 'none';
+                
+                // Show profile container
+                profileContainer.style.display = 'block';
+                
+                // Load profile data
+                loadProfileData();
+            });
+            
+            // Download history link functionality
+            downloadHistoryLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                if (!currentUser) {
+                    showNotification('Please login to view your download history', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                // Hide all tab contents and admin panel
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                adminPanel.style.display = 'none';
+                profileContainer.style.display = 'none';
+                
+                // Show download history
+                downloadHistory.style.display = 'block';
+                
+                // Load download history
+                loadDownloadHistory();
+            });
+            
+            // Admin link functionality
+            adminNavLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Hide all tab contents and profile container
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                profileContainer.style.display = 'none';
+                downloadHistory.style.display = 'none';
+                
+                // Show admin panel
+                adminPanel.style.display = 'block';
+                
+                // Load users table by default
+                loadUsersTable();
+            });
+            
+            // Add admin functionality
+            addAdminBtn.addEventListener('click', () => {
+                const email = adminEmail.value.trim();
+                if (!email) {
+                    showNotification('Please enter an email address', 'error');
+                    return;
+                }
+                
+                if (!email.endsWith('@gmail.com')) {
+                    showNotification('Only Gmail addresses are allowed for admin privileges', 'error');
+                    return;
+                }
+                
+                if (adminUsers.includes(email)) {
+                    showNotification('This user is already an admin', 'error');
+                    return;
+                }
+                
+                adminUsers.push(email);
+                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+                adminEmail.value = '';
+                
+                showNotification('Admin added successfully', 'success');
+                loadAdminSettings();
+            });
+            
+            // Profile customization functionality
+            changeAvatarBtn.addEventListener('click', () => {
+                avatarUpload.click();
+            });
+            
+            avatarUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!file.type.startsWith('image/')) {
+                    showNotification('Please select an image file', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    avatarPreview.src = e.target.result;
+                    
+                    // Update user avatar in UI
+                    if (currentUser) {
+                        const userImg = document.querySelector('.user-info img');
+                        if (userImg) {
+                            userImg.src = e.target.result;
+                        }
+                        
+                        // Save to user data
+                        currentUser.avatar = e.target.result;
+                        saveUserData();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            saveProfileBtn.addEventListener('click', () => {
+                if (!currentUser) return;
+                
+                // Update user data
+                currentUser.displayName = profileName.value || currentUser.name;
+                currentUser.bio = profileBio.value;
+                currentUser.website = profileWebsite.value;
+                
+                // Save to localStorage
+                saveUserData();
+                
+                // Update UI
+                const userNameSpan = document.querySelector('.user-info span');
+                if (userNameSpan) {
+                    userNameSpan.textContent = currentUser.displayName;
+                }
+                
+                showNotification('Profile saved successfully!', 'success');
+            });
+            
+            // Set up modal functionality
+            loginButton.addEventListener('click', () => {
+                loginModal.style.display = 'flex';
+            });
+            
+            signupButton.addEventListener('click', () => {
+                signupModal.style.display = 'flex';
+            });
+            
+            showUploadForm.addEventListener('click', () => {
+                if (!currentUser) {
+                    showNotification('Please login to upload assets', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                uploadModal.style.display = 'flex';
+            });
+            
+            closeLoginModal.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+            
+            closeSignupModal.addEventListener('click', () => {
+                signupModal.style.display = 'none';
+            });
+            
+            closeUploadModal.addEventListener('click', () => {
+                uploadModal.style.display = 'none';
+                resetUploadForm();
+            });
+            
+            switchToSignup.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginModal.style.display = 'none';
+                signupModal.style.display = 'flex';
+            });
+            
+            switchToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                signupModal.style.display = 'none';
+                loginModal.style.display = 'flex';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+                if (e.target === signupModal) {
+                    signupModal.style.display = 'none';
+                }
+                if (e.target === uploadModal) {
+                    uploadModal.style.display = 'none';
+                    resetUploadForm();
+                }
+                if (e.target === previewModal) {
+                    previewModal.style.display = 'none';
+                }
+            });
+            
+            // File upload functionality
+            triggerPreviewUpload.addEventListener('click', () => {
+                assetPreview.click();
+            });
+            
+            triggerAssetUpload.addEventListener('click', () => {
+                assetFile.click();
+            });
+            
+            assetPreview.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                
+                // Check if file is an image
+                if (file.type.startsWith('image/')) {
+                    reader.onload = (e) => {
+                        previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                } 
+                // Check if file is a video
+                else if (file.type.startsWith('video/')) {
+                    reader.onload = (e) => {
+                        previewContainer.innerHTML = `<video controls><source src="${e.target.result}" type="${file.type}"></video>`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+                // Handle other cases
+                else {
+                    showNotification('Please select an image or video file for preview', 'error');
+                    e.target.value = '';
+                }
+            });
+            
+            assetFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Check if file has .rbxl or .rbxm extension
+                const fileName = file.name.toLowerCase();
+                if (!fileName.endsWith('.rbxl') && !fileName.endsWith('.rbxm')) {
+                    showNotification('Only .rbxl and .rbxm files are allowed', 'error');
+                    e.target.value = '';
+                    selectedAssetFile.textContent = 'No file selected';
+                    return;
+                }
+                
+                selectedAssetFile.textContent = file.name;
+            });
+            
+            // Upload functionality
+            uploadSubmit.addEventListener('click', () => {
+                const title = document.getElementById('assetTitle').value;
+                const description = document.getElementById('assetDescription').value;
+                const previewFile = assetPreview.files[0];
+                const assetFilePath = assetFile.files[0];
+                
+                if (!title || !description || !previewFile || !assetFilePath) {
+                    showNotification('Please fill all fields and select both preview and asset files', 'error');
+                    return;
+                }
+                
+                // Create a reader for the preview file
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Create a new community asset
+                    const newAsset = {
+                        id: Date.now(),
+                        title,
+                        description,
+                        preview: e.target.result,
+                        previewType: previewFile.type.startsWith('image/') ? 'image' : 'video',
+                        fileName: assetFilePath.name,
+                        uploadDate: new Date().toLocaleDateString(),
+                        uploader: currentUser.name,
+                        views: 0,
+                        downloads: 0,
+                        likes: 0
+                    };
+                    
+                    // Add to community assets
+                    communityAssets.push(newAsset);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                    
+                    // Show success message
+                    showNotification('Asset uploaded successfully!', 'success');
+                    
+                    // Close modal and reset form
+                    uploadModal.style.display = 'none';
+                    resetUploadForm();
+                    
+                    // Update community assets display
+                    renderCommunityAssets();
+                };
+                
+                reader.readAsDataURL(previewFile);
+            });
+            
+            // Login functionality
+            loginSubmit.addEventListener('click', () => {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!email || !password) {
+                    showNotification('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                // Validate email format
+                if (!email.endsWith('@gmail.com')) {
+                    showNotification('Only Gmail addresses are allowed', 'error');
+                    return;
+                }
+                
+                // Check if user exists and password matches
+                const user = marketplaceUsers.find(u => u.email === email && u.password === password);
+                
+                if (!user) {
+                    showNotification('Email or password is incorrect', 'error');
+                    return;
+                }
+                
+                // Check if user is admin
+                const isAdmin = adminUsers.includes(email);
+                
+                // Set current user
+                currentUser = {
+                    name: user.name,
+                    email: user.email,
+                    password: user.password,
+                    avatar: user.avatar || 'https://randomuser.me/api/portraits/men/1.jpg',
+                    isAdmin: isAdmin,
+                    displayName: user.displayName,
+                    bio: user.bio,
+                    website: user.website,
+                    downloadHistory: user.downloadHistory || []
+                };
+                
+                // Load user preferences
+                loadUserPreferences();
+                
+                // Update UI
+                updateUserUI();
+                
+                // Close modal and show success message
+                loginModal.style.display = 'none';
+                showNotification('Login successful! Welcome back.', 'success');
+            });
+            
+            // Signup functionality
+            signupSubmit.addEventListener('click', () => {
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                
+                if (!name || !email || !password || !confirmPassword) {
+                    showNotification('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                // Validate email format
+                if (!email.endsWith('@gmail.com')) {
+                    showNotification('Only Gmail addresses are allowed', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showNotification('Passwords do not match', 'error');
+                    return;
+                }
+                
+                // Check if user already exists
+                if (marketplaceUsers.some(u => u.email === email)) {
+                    showNotification('User with this email already exists', 'error');
+                    return;
+                }
+                
+                // Check if user is admin
+                const isAdmin = adminUsers.includes(email);
+                
+                // Create new user
+                const newUser = {
+                    name: name,
+                    email: email,
+                    password: password,
+                    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+                    isAdmin: isAdmin,
+                    downloadHistory: []
+                };
+                
+                // Add to marketplace users
+                marketplaceUsers.push(newUser);
+                localStorage.setItem('marketplaceUsers', JSON.stringify(marketplaceUsers));
+                
+                // Set current user
+                currentUser = newUser;
+                
+                // Update UI
+                updateUserUI();
+                
+                // Close modal and show success message
+                signupModal.style.display = 'none';
+                showNotification('Account created successfully! Welcome to our marketplace.', 'success');
+            });
+            
+            // Set up preview buttons
+            document.querySelectorAll('.preview-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetName = btn.dataset.asset;
+                    const assetDescription = btn.dataset.description;
+                    const assetPrice = btn.dataset.price;
+                    
+                    // Find the asset card
+                    const assetCard = btn.closest('.asset-card');
+                    
+                    // Get stats
+                    const views = assetCard.querySelector('.view-count').textContent;
+                    const downloads = assetCard.querySelector('.download-count').textContent;
+                    const likes = assetCard.querySelector('.like-count').textContent;
+                    
+                    // Update preview modal
+                    document.getElementById('previewTitle').textContent = assetName;
+                    document.getElementById('previewName').textContent = assetName;
+                    document.getElementById('previewDescription').textContent = assetDescription;
+                    document.getElementById('previewViews').textContent = views;
+                    document.getElementById('previewDownloads').textContent = downloads;
+                    document.getElementById('previewLikes').textContent = likes;
+                    
+                    // Set appropriate icon based on asset name
+                    const previewIcon = document.getElementById('previewIcon');
+                    if (assetName.includes('Spaceship')) {
+                        previewIcon.className = 'fas fa-rocket';
+                    } else if (assetName.includes('Dragon')) {
+                        previewIcon.className = 'fas fa-dragon';
+                    } else if (assetName.includes('City')) {
+                        previewIcon.className = 'fas fa-city';
+                    } else if (assetName.includes('Character')) {
+                        previewIcon.className = 'fas fa-user-astronaut';
+                    } else if (assetName.includes('House')) {
+                        previewIcon.className = 'fas fa-home';
+                    } else if (assetName.includes('Car')) {
+                        previewIcon.className = 'fas fa-car';
+                    } else if (assetName.includes('Animation')) {
+                        previewIcon.className = 'fas fa-running';
+                    } else if (assetName.includes('Gesture')) {
+                        previewIcon.className = 'fas fa-hand-rock';
+                    } else if (assetName.includes('VFX')) {
+                        previewIcon.className = 'fas fa-wind';
+                    } else if (assetName.includes('Nature')) {
+                        previewIcon.className = 'fas fa-tree';
+                    } else if (assetName.includes('Crystal')) {
+                        previewIcon.className = 'fas fa-gem';
+                    } else if (assetName.includes('UI Kit')) {
+                        previewIcon.className = 'fas fa-cube';
+                    } else {
+                        previewIcon.className = 'fas fa-cube';
+                    }
+                    
+                    // Set appropriate action button
+                    if (assetPrice === 'FREE') {
+                        previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                        previewActionBtn.onclick = () => {
+                            downloadAsset(assetName, assetCard);
+                            previewModal.style.display = 'none';
+                        };
+                    } else {
+                        previewActionBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
+                        previewActionBtn.onclick = () => {
+                            purchaseAsset(assetName, btn.dataset.price, assetCard);
+                            previewModal.style.display = 'none';
+                        };
+                    }
+                    
+                    // Set up like button
+                    const isLiked = likedAssets.includes(assetName);
+                    updateLikeButton(isLiked);
+                    
+                    likeBtn.onclick = () => {
+                        toggleLikeAsset(assetName, assetCard);
+                    };
+                    
+                    // Load comments
+                    loadComments(assetName);
+                    
+                    // Set current asset
+                    currentAsset = assetName;
+                    
+                    // Increment view count
+                    incrementViewCount(assetCard);
+                    
+                    previewModal.style.display = 'flex';
+                });
+            });
+            
+            // Close preview modal
+            closePreviewModal.addEventListener('click', () => {
+                previewModal.style.display = 'none';
+            });
+            
+            closePreviewBtn.addEventListener('click', () => {
+                previewModal.style.display = 'none';
+            });
+            
+            // Comment functionality
+            submitComment.addEventListener('click', () => {
+                if (!currentUser) {
+                    showNotification('Please login to comment', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                const commentText = commentInput.value.trim();
+                if (!commentText) {
+                    showNotification('Please enter a comment', 'error');
+                    return;
+                }
+                
+                addComment(commentText);
+                commentInput.value = '';
+            });
+            
+            commentInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    submitComment.click();
+                }
+            });
+            
+            // Purchase functionality
+            document.querySelectorAll('.purchase-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetName = btn.dataset.asset;
+                    const assetPrice = btn.dataset.price;
+                    const assetCard = btn.closest('.asset-card');
+                    
+                    if (!currentUser) {
+                        showNotification('Please login to purchase assets', 'error');
+                        loginModal.style.display = 'flex';
+                        return;
+                    }
+                    
+                    purchaseAsset(assetName, assetPrice, assetCard);
+                });
+            });
+            
+            // Download functionality
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetName = btn.dataset.asset;
+                    const assetCard = btn.closest('.asset-card');
+                    
+                    if (!currentUser) {
+                        showNotification('Please login to download assets', 'error');
+                        loginModal.style.display = 'flex';
+                        return;
+                    }
+                    
+                    downloadAsset(assetName, assetCard);
+                });
+            });
+            
+            // Load community assets from localStorage
+            const storedAssets = localStorage.getItem('communityAssets');
+            if (storedAssets) {
+                communityAssets = JSON.parse(storedAssets);
+            }
+            
+            // Load user preferences
+            loadUserPreferences();
+            
+            // Initialize 3D background
+            init3DBackground();
+        }
+        
+        // Initialize 3D background
+        function init3DBackground() {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1000;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+            
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+                colorArray[i] = Math.random();
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            camera.position.z = 5;
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.001;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Reset upload form
+        function resetUploadForm() {
+            document.getElementById('assetTitle').value = '';
+            document.getElementById('assetDescription').value = '';
+            assetPreview.value = '';
+            assetFile.value = '';
+            previewContainer.innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
+            selectedAssetFile.textContent = 'No file selected';
+        }
+        
+        // Render community assets
+        function renderCommunityAssets() {
+            // Clear current grid
+            communityAssetsGrid.innerHTML = '';
+            
+            if (communityAssets.length === 0) {
+                communityAssetsGrid.innerHTML = `
+                    <div class="community-assets-empty">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No Community Assets Yet</h3>
+                        <p>Be the first to upload an asset to the community!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Add each asset to the grid
+            communityAssets.forEach(asset => {
+                const assetCard = document.createElement('div');
+                assetCard.className = 'asset-card';
+                assetCard.innerHTML = `
+                    <div class="asset-preview">
+                        ${asset.previewType === 'image' ? 
+                            `<img src="${asset.preview}" alt="${asset.title}">` : 
+                            `<video><source src="${asset.preview}"></video>`
+                        }
+                    </div>
+                    <div class="asset-info">
+                        <h3>${asset.title}</h3>
+                        <p>${asset.description}</p>
+                        <div class="asset-stats">
+                            <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">${asset.views}</span></div>
+                            <div class="stat"><i class="fas fa-download"></i> <span class="download-count">${asset.downloads}</span></div>
+                            <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">${asset.likes}</span></div>
+                        </div>
+                        <div class="asset-meta">
+                            <div class="free-badge">Community</div>
+                            <div class="asset-actions">
+                                <button class="btn btn-secondary preview-community-btn" data-asset-id="${asset.id}">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <button class="btn btn-primary download-community-btn" data-asset-id="${asset.id}">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                ${currentUser && currentUser.isAdmin ? `
+                                    <button class="btn btn-danger delete-community-btn" data-asset-id="${asset.id}">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--medium);">
+                            Uploaded by ${asset.uploader} on ${asset.uploadDate}
+                        </div>
+                    </div>
+                `;
+                
+                communityAssetsGrid.appendChild(assetCard);
+            });
+            
+            // Add event listeners to preview and download buttons
+            document.querySelectorAll('.preview-community-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetId = btn.dataset.assetId;
+                    const asset = communityAssets.find(a => a.id == assetId);
+                    
+                    if (asset) {
+                        document.getElementById('previewTitle').textContent = asset.title;
+                        document.getElementById('previewName').textContent = asset.title;
+                        document.getElementById('previewDescription').textContent = asset.description;
+                        document.getElementById('previewViews').textContent = asset.views;
+                        document.getElementById('previewDownloads').textContent = asset.downloads;
+                        document.getElementById('previewLikes').textContent = asset.likes;
+                        
+                        const previewMedia = document.getElementById('previewMedia');
+                        if (asset.previewType === 'image') {
+                            previewMedia.innerHTML = `<img src="${asset.preview}" alt="${asset.title}" style="width: 100%; height: 100%; object-fit: contain;">`;
+                        } else {
+                            previewMedia.innerHTML = `<video controls style="width: 100%; height: 100%; object-fit: contain;"><source src="${asset.preview}"></video>`;
+                        }
+                        
+                        previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                        previewActionBtn.onclick = () => {
+                            downloadCommunityAsset(asset);
+                            previewModal.style.display = 'none';
+                        };
+                        
+                        // Set up like button
+                        const isLiked = likedAssets.includes(asset.title);
+                        updateLikeButton(isLiked);
+                        
+                        likeBtn.onclick = () => {
+                            toggleLikeCommunityAsset(asset);
+                        };
+                        
+                        // Load comments
+                        loadComments(asset.title);
+                        
+                        // Set current asset
+                        currentAsset = asset.title;
+                        
+                        // Increment view count
+                        asset.views++;
+                        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                        
+                        previewModal.style.display = 'flex';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.download-community-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetId = btn.dataset.assetId;
+                    const asset = communityAssets.find(a => a.id == assetId);
+                    
+                    if (asset) {
+                        downloadCommunityAsset(asset);
+                    }
+                });
+            });
+            
+            // Add event listeners to delete buttons (for admins)
+            document.querySelectorAll('.delete-community-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const assetId = btn.dataset.assetId;
+                    const asset = communityAssets.find(a => a.id == assetId);
+                    
+                    if (asset && confirm(`Are you sure you want to delete "${asset.title}"?`)) {
+                        communityAssets = communityAssets.filter(a => a.id != assetId);
+                        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                        showNotification('Asset deleted successfully', 'success');
+                        renderCommunityAssets();
+                    }
+                });
+            });
+        }
+        
+        // Download asset function
+        function downloadAsset(assetName, assetCard) {
+            // Increment download count
+            const downloadCount = assetCard.querySelector('.download-count');
+            downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
+            
+            // Add to download history
+            if (currentUser) {
+                currentUser.downloadHistory.unshift({
+                    name: assetName,
+                    date: new Date().toLocaleString(),
+                    type: 'marketplace'
+                });
+                
+                // Save user data
+                saveUserData();
+            }
+            
+            showNotification(`Downloading "${assetName}"...`, 'info');
+            
+            // Create a dummy file content (in a real app, this would be the actual asset data)
+            const fileContent = `This is a simulation of the ${assetName} file content. In a real application, this would be binary asset data.`;
+            
+            // Create a blob with the file content
+            const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+            
+            // Create a download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Set an appropriate file extension based on asset type
+            let extension = '.rbxm';
+            if (assetName.includes('Animation') || assetName.includes('Pack')) {
+                extension = '.rbxl';
+            }
+            
+            a.download = `${assetName.replace(/\s+/g, '_')}${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification(`"${assetName}" downloaded successfully!`, 'success');
+            }, 1000);
+        }
+        
+        // Download community asset
+        function downloadCommunityAsset(asset) {
+            if (!currentUser) {
+                showNotification('Please login to download assets', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            // Increment download count
+            asset.downloads++;
+            localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+            
+            // Add to download history
+            currentUser.downloadHistory.unshift({
+                name: asset.title,
+                date: new Date().toLocaleString(),
+                type: 'community'
+            });
+            
+            // Save user data
+            saveUserData();
+            
+            showNotification(`Downloading "${asset.title}"...`, 'info');
+            
+            // Create a dummy file content (in a real app, this would be the actual asset data)
+            const fileContent = `This is a simulation of the ${asset.title} file content. In a real application, this would be binary asset data.`;
+            
+            // Create a blob with the file content
+            const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+            
+            // Create a download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = asset.fileName;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification(`"${asset.title}" downloaded successfully!`, 'success');
+                renderCommunityAssets();
+            }, 1000);
+        }
+        
+        // Update user UI
+        function updateUserUI() {
+            if (currentUser) {
+                userActions.innerHTML = `
+                    <div class="user-info">
+                        <img src="${currentUser.avatar}" alt="${currentUser.name}">
+                        <span>${currentUser.displayName || currentUser.name}</span>
+                    </div>
+                    <button class="auth-button login-btn" id="logoutButton">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Show admin link if user is admin
+                if (currentUser.isAdmin) {
+                    adminNavLink.style.display = 'flex';
+                } else {
+                    adminNavLink.style.display = 'none';
+                }
+                
+                document.getElementById('logoutButton').addEventListener('click', logout);
+            } else {
+                userActions.innerHTML = `
+                    <button class="auth-button login-btn" id="loginButton">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="auth-button signup-btn" id="signupButton">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                `;
+                
+                // Reattach event listeners to the login and signup buttons
+                document.getElementById('loginButton').addEventListener('click', () => {
+                    loginModal.style.display = 'flex';
+                });
+                document.getElementById('signupButton').addEventListener('click', () => {
+                    signupModal.style.display = 'flex';
+                });
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            currentUser = null;
+            showNotification('Logged out successfully', 'success');
+            updateUserUI();
+        }
+        
+        // Load user preferences from localStorage
+        function loadUserPreferences() {
+            if (!currentUser) return;
+            
+            const userPrefs = JSON.parse(localStorage.getItem(`userPrefs_${currentUser.email}`));
+            if (userPrefs) {
+                likedAssets = userPrefs.likedAssets || [];
+                purchasedAssets = userPrefs.purchasedAssets || [];
+                
+                // Load profile data if available
+                if (userPrefs.displayName) {
+                    currentUser.displayName = userPrefs.displayName;
+                }
+                if (userPrefs.bio) {
+                    currentUser.bio = userPrefs.bio;
+                }
+                if (userPrefs.website) {
+                    currentUser.website = userPrefs.website;
+                }
+                if (userPrefs.avatar) {
+                    currentUser.avatar = userPrefs.avatar;
+                }
+            }
+        }
+        
+        // Save user data to localStorage
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            // Update user in marketplaceUsers
+            const userIndex = marketplaceUsers.findIndex(u => u.email === currentUser.email);
+            if (userIndex !== -1) {
+                marketplaceUsers[userIndex] = currentUser;
+                localStorage.setItem('marketplaceUsers', JSON.stringify(marketplaceUsers));
+            }
+            
+            // Save user preferences separately
+            const userPrefs = {
+                likedAssets,
+                purchasedAssets,
+                displayName: currentUser.displayName,
+                bio: currentUser.bio,
+                website: currentUser.website,
+                avatar: currentUser.avatar
+            };
+            
+            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+        }
+        
+        // Load profile data into the form
+        function loadProfileData() {
+            if (!currentUser) return;
+            
+            profileName.value = currentUser.displayName || currentUser.name;
+            profileBio.value = currentUser.bio || '';
+            profileWebsite.value = currentUser.website || '';
+            avatarPreview.src = currentUser.avatar;
+        }
+        
+        // Load download history
+        function loadDownloadHistory() {
+            downloadHistoryList.innerHTML = '';
+            
+            if (!currentUser || !currentUser.downloadHistory || currentUser.downloadHistory.length === 0) {
+                downloadHistoryList.innerHTML = `
+                    <div class="history-empty">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No Download History</h3>
+                        <p>Your downloaded assets will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentUser.downloadHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-item-info">
+                        <div class="history-item-name">${item.name}</div>
+                        <div class="history-item-date">${item.date} • ${item.type === 'marketplace' ? 'Marketplace' : 'Community'}</div>
+                    </div>
+                    <button class="btn btn-secondary">Download Again</button>
+                `;
+                
+                downloadHistoryList.appendChild(historyItem);
+            });
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            notificationText.textContent = message;
+            notification.className = 'notification show';
+            if (type) {
+                notification.classList.add(type);
+            }
+            
+            setTimeout(() => {
+                notification.className = 'notification';
+                if (type) {
+                    notification.classList.remove(type);
+                }
+            }, 3000);
+        }
+        
+        // Update like button appearance
+        function updateLikeButton(isLiked) {
+            if (isLiked) {
+                likeBtn.classList.add('liked');
+                likeBtn.innerHTML = '<i class="fas fa-heart"></i> Liked';
+            } else {
+                likeBtn.classList.remove('liked');
+                likeBtn.innerHTML = '<i class="fas fa-heart"></i> Like';
+            }
+        }
+        
+        // Toggle like for an asset
+        function toggleLikeAsset(assetName, assetCard) {
+            if (!currentUser) {
+                showNotification('Please login to like assets', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            const likeCount = assetCard.querySelector('.like-count');
+            const index = likedAssets.indexOf(assetName);
+            
+            if (index === -1) {
+                // Like the asset
+                likedAssets.push(assetName);
+                likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                updateLikeButton(true);
+                showNotification(`Liked "${assetName}"`, 'success');
+            } else {
+                // Unlike the asset
+                likedAssets.splice(index, 1);
+                likeCount.textContent = parseInt(likeCount.textContent) - 1;
+                updateLikeButton(false);
+                showNotification(`Removed like from "${assetName}"`, 'info');
+            }
+            
+            // Save user preferences
+            const userPrefs = {
+                likedAssets,
+                purchasedAssets,
+                displayName: currentUser.displayName,
+                bio: currentUser.bio,
+                website: currentUser.website,
+                avatar: currentUser.avatar
+            };
+            
+            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+        }
+        
+        // Toggle like for a community asset
+        function toggleLikeCommunityAsset(asset) {
+            if (!currentUser) {
+                showNotification('Please login to like assets', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            const index = likedAssets.indexOf(asset.title);
+            
+            if (index === -1) {
+                // Like the asset
+                likedAssets.push(asset.title);
+                asset.likes++;
+                updateLikeButton(true);
+                showNotification(`Liked "${asset.title}"`, 'success');
+            } else {
+                // Unlike the asset
+                likedAssets.splice(index, 1);
+                asset.likes--;
+                updateLikeButton(false);
+                showNotification(`Removed like from "${asset.title}"`, 'info');
+            }
+            
+            localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+            
+            // Save user preferences
+            const userPrefs = {
+                likedAssets,
+                purchasedAssets,
+                displayName: currentUser.displayName,
+                bio: currentUser.bio,
+                website: currentUser.website,
+                avatar: currentUser.avatar
+            };
+            
+            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+            
+            renderCommunityAssets();
+        }
+        
+        // Purchase asset
+        function purchaseAsset(assetName, price, assetCard) {
+            if (purchasedAssets.includes(assetName)) {
+                showNotification(`You already own "${assetName}"`, 'info');
+                return;
+            }
+            
+            purchasedAssets.push(assetName);
+            
+            // Save user preferences
+            const userPrefs = {
+                likedAssets,
+                purchasedAssets,
+                displayName: currentUser.displayName,
+                bio: currentUser.bio,
+                website: currentUser.website,
+                avatar: currentUser.avatar
+            };
+            
+            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+            
+            // Increment download count
+            const downloadCount = assetCard.querySelector('.download-count');
+            downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
+            
+            showNotification(`Purchased "${assetName}" for $${price}!`, 'success');
+            
+            // In a real application, you would process payment here
+        }
+        
+        // Increment view count
+        function incrementViewCount(assetCard) {
+            const viewCount = assetCard.querySelector('.view-count');
+            viewCount.textContent = parseInt(viewCount.textContent) + 1;
+        }
+        
+        // Load comments for an asset
+        function loadComments(assetName) {
+            commentsList.innerHTML = '';
+            
+            // Initialize comments for this asset if not exists
+            if (!assetComments[assetName]) {
+                assetComments[assetName] = [];
+            }
+            
+            if (assetComments[assetName].length === 0) {
+                const noComments = document.createElement('div');
+                noComments.className = 'comment';
+                noComments.innerHTML = `
+                    <div class="comment-text">No comments yet. Be the first to comment!</div>
+                `;
+                
+                commentsList.appendChild(noComments);
+            } else {
+                assetComments[assetName].forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <div class="comment-header">
+                            <span class="comment-user">${comment.user}</span>
+                            <span class="comment-date">${comment.date}</span>
+                        </div>
+                        <div class="comment-text">${comment.text}</div>
+                    `;
+                    
+                    commentsList.appendChild(commentElement);
+                });
+            }
+        }
+        
+        // Add comment to an asset
+        function addComment(commentText) {
+            if (!currentAsset) return;
+            
+            // Initialize comments for this asset if not exists
+            if (!assetComments[currentAsset]) {
+                assetComments[currentAsset] = [];
+            }
+            
+            // Add new comment
+            assetComments[currentAsset].push({
+                user: currentUser.name,
+                text: commentText,
+                date: new Date().toLocaleString()
+            });
+            
+            // Save comments to localStorage
+            localStorage.setItem('assetComments', JSON.stringify(assetComments));
+            
+            // Reload comments
+            loadComments(currentAsset);
+            
+            showNotification('Comment added!', 'success');
+        }
+        
+        // Load users table for admin panel
+        function loadUsersTable() {
+            usersTableBody.innerHTML = '';
+            
+            marketplaceUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>Active</td>
+                    <td>${user.isAdmin ? 'Yes' : 'No'}</td>
+                    <td class="admin-actions">
+                        <button class="btn btn-secondary">Edit</button>
+                        <button class="btn btn-danger">Delete</button>
+                    </td>
+                `;
+                
+                usersTableBody.appendChild(row);
+            });
+        }
+        
+        // Load assets table for admin panel
+        function loadAssetsTable() {
+            assetsTableBody.innerHTML = '';
+            
+            // Add predefined assets
+            const predefinedAssets = [
+                { name: 'Sci-Fi Spaceship', type: 'Model', uploader: 'System', price: '$24.99', status: 'Approved' },
+                { name: 'Fantasy Dragon', type: 'Character', uploader: 'System', price: '$39.99', status: 'Approved' },
+                { name: 'Modular City Pack', type: 'Model', uploader: 'System', price: '$49.99', status: 'Approved' },
+                { name: 'Nature Pack', type: 'Environment', uploader: 'System', price: 'FREE', status: 'Approved' },
+                { name: 'Crystal Collection', type: 'Model', uploader: 'System', price: 'FREE', status: 'Approved' }
+            ];
+            
+            predefinedAssets.forEach(asset => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${asset.name}</td>
+                    <td>${asset.type}</td>
+                    <td>${asset.uploader}</td>
+                    <td>${asset.price}</td>
+                    <td>${asset.status}</td>
+                    <td class="admin-actions">
+                        <button class="btn btn-secondary">Edit</button>
+                        <button class="btn btn-danger">Delete</button>
+                    </td>
+                `;
+                
+                assetsTableBody.appendChild(row);
+            });
+            
+            // Add community assets
+            communityAssets.forEach(asset => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${asset.title}</td>
+                    <td>Community</td>
+                    <td>${asset.uploader}</td>
+                    <td>FREE</td>
+                    <td>Approved</td>
+                    <td class="admin-actions">
+                        <button class="btn btn-secondary">Edit</button>
+                        <button class="btn btn-danger">Delete</button>
+                    </td>
+                `;
+                
+                assetsTableBody.appendChild(row);
+            });
+        }
+        
+        // Load admin settings
+        function loadAdminSettings() {
+            adminList.innerHTML = '';
+            
+            adminUsers.forEach(email => {
+                const li = document.createElement('li');
+                li.textContent = email;
+                adminList.appendChild(li);
+            });
+        }
+        
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
