@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Asset Marketplace | Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -35,15 +34,6 @@
             min-height: 100vh;
             padding: 0;
             margin: 0;
-        }
-        
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
         }
         
         .content {
@@ -189,7 +179,6 @@
         
         .tabs-container {
             background: rgba(33, 37, 41, 0.8);
-            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
             margin: 3rem 0;
@@ -413,7 +402,6 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -454,6 +442,7 @@
         
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
         
         .form-group label {
@@ -767,6 +756,7 @@
             padding: 2rem;
             margin-top: 2rem;
             border: 1px dashed var(--accent);
+            display: none;
         }
         
         .upload-header {
@@ -791,7 +781,6 @@
         /* Profile customization styles */
         .profile-container {
             background: rgba(33, 37, 41, 0.8);
-            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
             margin: 3rem 0;
@@ -831,7 +820,6 @@
         /* Admin panel styles */
         .admin-panel {
             background: rgba(33, 37, 41, 0.8);
-            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
             margin: 3rem 0;
@@ -915,7 +903,6 @@
         /* Download History Styles */
         .download-history {
             background: rgba(33, 37, 41, 0.8);
-            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
             margin: 3rem 0;
@@ -967,6 +954,42 @@
             font-size: 4rem;
             margin-bottom: 1.5rem;
             color: var(--primary);
+        }
+        
+        /* Verification Code Input */
+        .verification-inputs {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        
+        .verification-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            border: 1px solid var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+        
+        .verification-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .resend-code {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--medium);
+            cursor: pointer;
+        }
+        
+        .resend-code:hover {
+            color: var(--accent);
+            text-decoration: underline;
         }
         
         @keyframes fadeIn {
@@ -1021,12 +1044,14 @@
                 align-items: flex-start;
                 gap: 0.5rem;
             }
+            
+            .verification-inputs {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="canvas-container"></div>
-    
     <div class="content">
         <header>
             <div class="logo">
@@ -1035,7 +1060,7 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" id="homeLink"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="#" id="uploadNavLink"><i class="fas fa-upload"></i> Upload</a></li>
                     <li><a href="#" id="profileNavLink"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="#" id="downloadHistoryLink"><i class="fas fa-history"></i> Downloads</a></li>
@@ -1182,10 +1207,10 @@
         
         <div class="tabs-container">
             <div class="tabs">
-                <button class="tab active" data-tab="tab1">
+                <button class="tab" data-tab="tab1">
                     <i class="fas fa-star"></i> Featured
                 </button>
-                <button class="tab" data-tab="tab2">
+                <button class="tab active" data-tab="tab2">
                     <i class="fas fa-download"></i> Free Assets
                 </button>
                 <button class="tab" data-tab="tab3">
@@ -1199,7 +1224,7 @@
                 </button>
             </div>
             
-            <div class="tab-content active" id="tab1">
+            <div class="tab-content" id="tab1">
                 <h2><i class="fas fa-star"></i> Featured Assets</h2>
                 <p>Check out our curated selection of top-quality assets</p>
                 
@@ -1278,7 +1303,7 @@
                 </div>
             </div>
             
-            <div class="tab-content" id="tab2">
+            <div class="tab-content active" id="tab2">
                 <h2><i class="fas fa-download"></i> Free Assets</h2>
                 <p>Download these high-quality assets for free</p>
                 
@@ -1542,10 +1567,7 @@
         <footer>
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="#"><i class="fas fa-question-circle"></i> Help Center</a>
-                    <a href="#"><i class="fas fa-book"></i> Documentation</a>
-                    <a href="#"><i class="fas fa-users"></i> Community</a>
-                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                    <a href="https://discord.gg/example" target="_blank"><i class="fab fa-discord"></i> Help Center</a>
                 </div>
                 <p>© 2023 3D Asset Marketplace. All rights reserved.</p>
             </div>
@@ -1597,237 +1619,223 @@
             <p style="text-align: center; margin-top: 1rem; color: var(--medium);">
                 Already have an account? <a href="#" style="color: var(--accent);" id="switchToLogin">Login</a>
             </p>
-        </div>
     </div>
-    
-    <!-- Upload Modal -->
-    <div class="modal" id="uploadModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeUploadModal">&times;</button>
-            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Community Asset</h2>
-            
-            <div class="form-group">
-                <label for="assetTitle">Asset Title</label>
-                <input type="text" id="assetTitle" placeholder="Enter a title for your asset">
-            </div>
-            
-            <div class="form-group">
-                <label for="assetDescription">Description</label>
-                <textarea id="assetDescription" placeholder="Describe your asset"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="assetPreview">Preview Image/Video/GIF</label>
-                <div class="file-upload">
-                    <div class="file-upload-preview" id="previewContainer">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <input type="file" id="assetPreview" accept="image/*,video/*,.gif" style="display: none;">
-                    <button class="btn btn-secondary" id="triggerPreviewUpload">
-                        <i class="fas fa-upload"></i> Select Preview File
-                    </button>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="assetFile">Asset File (.rbxl or .rbxm only)</label>
-                <div class="file-upload">
-                    <input type="file" id="assetFile" accept=".rbxl,.rbxm" style="display: none;">
-                    <button class="btn btn-secondary" id="triggerAssetUpload">
-                        <i class="fas fa-upload"></i> Select Asset File
-                    </button>
-                    <span id="selectedAssetFile">No file selected</span>
-                </div>
-            </div>
-            
-            <button class="form-submit" id="uploadSubmit">Upload Asset</button>
-        </div>
-    </div>
-    
-    <!-- Preview Modal -->
-    <div class="preview-modal" id="previewModal">
-        <div class="preview-content">
-            <div class="preview-header">
-                <h2 id="previewTitle">Asset Preview</h2>
-                <button class="close-modal" id="closePreviewModal">&times;</button>
-            </div>
-            <div class="preview-body">
-                <div class="preview-media" id="previewMedia">
-                    <i class="fas fa-cube" id="previewIcon"></i>
-                </div>
-                <div class="preview-details">
-                    <h3 id="previewName"></h3>
-                    <p id="previewDescription"></p>
-                    
-                    <div class="preview-stats">
-                        <div class="preview-stat">
-                            <i class="fas fa-eye"></i>
-                            <span id="previewViews">0</span> views
-                        </div>
-                        <div class="preview-stat">
-                            <i class="fas fa-download"></i>
-                            <span id="previewDownloads">0</span> downloads
-                        </div>
-                        <div class="preview-stat">
-                            <i class="fas fa-heart"></i>
-                            <span id="previewLikes">0</span> likes
-                        </div>
-                    </div>
-                    
-                    <div class="preview-actions">
-                        <button class="btn btn-secondary" id="closePreviewBtn">Close</button>
-                        <button class="btn btn-like" id="likeBtn">
-                            <i class="fas fa-heart"></i> Like
-                        </button>
-                        <button class="btn btn-primary" id="previewActionBtn">
-                            <i class="fas fa-shopping-cart"></i> Buy Now
-                        </button>
-                    </div>
-                    
-                    <div class="comments-section">
-                        <h4><i class="fas fa-comments"></i> Comments</h4>
-                        
-                        <div class="comment-form">
-                            <input type="text" class="comment-input" id="commentInput" placeholder="Add a comment...">
-                            <button class="btn btn-primary" id="submitComment">Submit</button>
-                        </div>
-                        
-                        <div class="comments-list" id="commentsList">
-                            <!-- Comments will be dynamically added here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notification -->
-    <div class="notification" id="notification">
-        <span id="notificationText"></span>
-    </div>
+</div>
 
-    <script>
-        // App State
-        let currentUser = null;
-        let purchasedAssets = [];
-        let communityAssets = [];
-        let currentAsset = null;
-        let likedAssets = [];
-        let adminUsers = JSON.parse(localStorage.getItem('adminUsers')) || ['wow1ypii@gmail.com'];
-        let marketplaceUsers = JSON.parse(localStorage.getItem('marketplaceUsers')) || [];
-        let assetComments = JSON.parse(localStorage.getItem('assetComments')) || {};
+<!-- Verification Modal -->
+<div class="modal" id="verificationModal">
+    <div class="modal-content">
+        <button class="close-modal" id="closeVerificationModal">&times;</button>
+        <h2><i class="fas fa-shield-alt"></i> Verify Your Email</h2>
+        <p style="text-align: center; margin-bottom: 1.5rem; color: var(--medium);">
+            We've sent a verification code to your email. Please enter it below.
+        </p>
         
-        // DOM Elements
-        const loginButton = document.getElementById('loginButton');
-        const signupButton = document.getElementById('signupButton');
-        const loginModal = document.getElementById('loginModal');
-        const signupModal = document.getElementById('signupModal');
-        const uploadModal = document.getElementById('uploadModal');
-        const closeLoginModal = document.getElementById('closeLoginModal');
-        const closeSignupModal = document.getElementById('closeSignupModal');
-        const closeUploadModal = document.getElementById('closeUploadModal');
-        const switchToSignup = document.getElementById('switchToSignup');
-        const switchToLogin = document.getElementById('switchToLogin');
-        const loginSubmit = document.getElementById('loginSubmit');
-        const signupSubmit = document.getElementById('signupSubmit');
-        const userActions = document.getElementById('userActions');
-        const previewModal = document.getElementById('previewModal');
-        const closePreviewModal = document.getElementById('closePreviewModal');
-        const closePreviewBtn = document.getElementById('closePreviewBtn');
-        const previewActionBtn = document.getElementById('previewActionBtn');
-        const likeBtn = document.getElementById('likeBtn');
-        const notification = document.getElementById('notification');
-        const notificationText = document.getElementById('notificationText');
-        const showUploadForm = document.getElementById('showUploadForm');
-        const triggerPreviewUpload = document.getElementById('triggerPreviewUpload');
-        const triggerAssetUpload = document.getElementById('triggerAssetUpload');
-        const assetPreview = document.getElementById('assetPreview');
-        const assetFile = document.getElementById('assetFile');
-        const uploadSubmit = document.getElementById('uploadSubmit');
-        const previewContainer = document.getElementById('previewContainer');
-        const selectedAssetFile = document.getElementById('selectedAssetFile');
-        const communityAssetsGrid = document.getElementById('communityAssetsGrid');
-        const commentInput = document.getElementById('commentInput');
-        const submitComment = document.getElementById('submitComment');
-        const commentsList = document.getElementById('commentsList');
-        const downloadHistoryLink = document.getElementById('downloadHistoryLink');
-        const downloadHistory = document.getElementById('downloadHistory');
-        const downloadHistoryList = document.getElementById('downloadHistoryList');
+        <div class="verification-inputs">
+            <input type="text" class="verification-input" id="verificationCode1" maxlength="1" onkeyup="moveToNext(1, event)">
+            <input type="text" class="verification-input" id="verificationCode2" maxlength="1" onkeyup="moveToNext(2, event)">
+            <input type="text" class="verification-input" id="verificationCode3" maxlength="1" onkeyup="moveToNext(3, event)">
+            <input type="text" class="verification-input" id="verificationCode4" maxlength="1" onkeyup="moveToNext(4, event)">
+            <input type="text" class="verification-input" id="verificationCode5" maxlength="1" onkeyup="moveToNext(5, event)">
+            <input type="text" class="verification-input" id="verificationCode6" maxlength="1" onkeyup="moveToNext(6, event)">
+        </div>
         
-        // New elements for profile customization
-        const profileNavLink = document.getElementById('profileNavLink');
-        const uploadNavLink = document.getElementById('uploadNavLink');
-        const profileContainer = document.getElementById('profileContainer');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-        const avatarUpload = document.getElementById('avatarUpload');
-        const profileName = document.getElementById('profileName');
-        const profileBio = document.getElementById('profileBio');
-        const profileWebsite = document.getElementById('profileWebsite');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        <button class="form-submit" id="verifyCodeBtn">Verify Code</button>
         
-        // Admin panel elements
-        const adminNavLink = document.getElementById('adminNavLink');
-        const adminPanel = document.getElementById('adminPanel');
-        const adminTabs = document.querySelectorAll('.admin-tab');
-        const adminContents = document.querySelectorAll('.admin-content');
-        const usersTableBody = document.getElementById('usersTableBody');
-        const assetsTableBody = document.getElementById('assetsTableBody');
-        const adminEmail = document.getElementById('adminEmail');
-        const addAdminBtn = document.getElementById('addAdminBtn');
-        const adminList = document.getElementById('adminList');
+        <div class="resend-code" id="resendCode">
+            Didn't receive the code? <span style="color: var(--accent);">Resend</span>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-content">
+        <button class="close-modal" id="closeUploadModal">&times;</button>
+        <h2><i class="fas fa-cloud-upload-alt"></i> Upload Community Asset</h2>
         
-        // Initialize the application
-        function initApp() {
-            // Set up tab functionality
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs and content
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Hide profile and admin containers if they're visible
-                    profileContainer.style.display = 'none';
-                    adminPanel.style.display = 'none';
-                    downloadHistory.style.display = 'none';
-                    
-                    // Add active class to clicked tab and corresponding content
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.tab).classList.add('active');
-                    
-                    // If community tab is selected, render community assets
-                    if (tab.dataset.tab === 'tab5') {
-                        renderCommunityAssets();
-                    }
-                });
-            });
-            
-            // Set up admin tab functionality
-            adminTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all admin tabs and content
-                    adminTabs.forEach(t => t.classList.remove('active'));
-                    adminContents.forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab and corresponding content
-                    tab.classList.add('active');
-                    document.getElementById('admin' + tab.dataset.adminTab.charAt(0).toUpperCase() + tab.dataset.adminTab.slice(1)).classList.add('active');
-                    
-                    // Load data if needed
-                    if (tab.dataset.adminTab === 'users') {
-                        loadUsersTable();
-                    } else if (tab.dataset.adminTab === 'assets') {
-                        loadAssetsTable();
-                    } else if (tab.dataset.adminTab === 'settings') {
-                        loadAdminSettings();
-                    }
-                });
-            });
-            
-            // Make Upload nav link switch to Community Assets tab
-            uploadNavLink.addEventListener('click', (e) => {
-                e.preventDefault();
+        <div class="form-group">
+            <label for="assetTitle">Asset Title</label>
+            <input type="text" id="assetTitle" placeholder="Enter a title for your asset">
+        </div>
+        
+        <div class="form-group">
+            <label for="assetDescription">Description</label>
+            <textarea id="assetDescription" placeholder="Describe your asset"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="assetPreview">Preview Image/Video/GIF</label>
+            <div class="file-upload">
+                <div class="file-upload-preview" id="previewContainer">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <input type="file" id="assetPreview" accept="image/*,video/*,.gif" style="display: none;">
+                <button class="btn btn-secondary" id="triggerPreviewUpload">
+                    <i class="fas fa-upload"></i> Select Preview File
+                </button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="assetFile">Asset File (.rbxl or .rbxm only)</label>
+            <div class="file-upload">
+                <input type="file" id="assetFile" accept=".rbxl,.rbxm" style="display: none;">
+                <button class="btn btn-secondary" id="triggerAssetUpload">
+                    <i class="fas fa-upload"></i> Select Asset File
+                </button>
+                <span id="selectedAssetFile">No file selected</span>
+            </div>
+        </div>
+        
+        <button class="form-submit" id="uploadSubmit">Upload Asset</button>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+        <div class="preview-header">
+            <h2 id="previewTitle">Asset Preview</h2>
+            <button class="close-modal" id="closePreviewModal">&times;</button>
+        </div>
+        <div class="preview-body">
+            <div class="preview-media" id="previewMedia">
+                <i class="fas fa-cube" id="previewIcon"></i>
+            </div>
+            <div class="preview-details">
+                <h3 id="previewName"></h3>
+                <p id="previewDescription"></p>
                 
+                <div class="preview-stats">
+                    <div class="preview-stat">
+                        <i class="fas fa-eye"></i>
+                        <span id="previewViews">0</span> views
+                    </div>
+                    <div class="preview-stat">
+                        <i class="fas fa-download"></i>
+                        <span id="previewDownloads">0</span> downloads
+                    </div>
+                    <div class="preview-stat">
+                        <i class="fas fa-heart"></i>
+                        <span id="previewLikes">0</span> likes
+                    </div>
+                </div>
+                
+                <div class="preview-actions">
+                    <button class="btn btn-secondary" id="closePreviewBtn">Close</button>
+                    <button class="btn btn-like" id="likeBtn">
+                        <i class="fas fa-heart"></i> Like
+                    </button>
+                    <button class="btn btn-primary" id="previewActionBtn">
+                        <i class="fas fa-shopping-cart"></i> Buy Now
+                    </button>
+                </div>
+                
+                <div class="comments-section">
+                    <h4><i class="fas fa-comments"></i> Comments</h4>
+                    
+                    <div class="comment-form">
+                        <input type="text" class="comment-input" id="commentInput" placeholder="Add a comment...">
+                        <button class="btn btn-primary" id="submitComment">Submit</button>
+                    </div>
+                    
+                    <div class="comments-list" id="commentsList">
+                        <!-- Comments will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification">
+    <span id="notificationText"></span>
+</div>
+
+<script>
+    // App State
+    let currentUser = null;
+    let purchasedAssets = [];
+    let communityAssets = [];
+    let currentAsset = null;
+    let likedAssets = [];
+    let adminUsers = JSON.parse(localStorage.getItem('adminUsers')) || ['admin@example.com'];
+    let marketplaceUsers = JSON.parse(localStorage.getItem('marketplaceUsers')) || [];
+    let assetComments = JSON.parse(localStorage.getItem('assetComments')) || {};
+    let verificationCode = '';
+    
+    // DOM Elements
+    const loginButton = document.getElementById('loginButton');
+    const signupButton = document.getElementById('signupButton');
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    const verificationModal = document.getElementById('verificationModal');
+    const uploadModal = document.getElementById('uploadModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeSignupModal = document.getElementById('closeSignupModal');
+    const closeVerificationModal = document.getElementById('closeVerificationModal');
+    const closeUploadModal = document.getElementById('closeUploadModal');
+    const switchToSignup = document.getElementById('switchToSignup');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const loginSubmit = document.getElementById('loginSubmit');
+    const signupSubmit = document.getElementById('signupSubmit');
+    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+    const resendCode = document.getElementById('resendCode');
+    const userActions = document.getElementById('userActions');
+    const previewModal = document.getElementById('previewModal');
+    const closePreviewModal = document.getElementById('closePreviewModal');
+    const closePreviewBtn = document.getElementById('closePreviewBtn');
+    const previewActionBtn = document.getElementById('previewActionBtn');
+    const likeBtn = document.getElementById('likeBtn');
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    const showUploadForm = document.getElementById('showUploadForm');
+    const triggerPreviewUpload = document.getElementById('triggerPreviewUpload');
+    const triggerAssetUpload = document.getElementById('triggerAssetUpload');
+    const assetPreview = document.getElementById('assetPreview');
+    const assetFile = document.getElementById('assetFile');
+    const uploadSubmit = document.getElementById('uploadSubmit');
+    const previewContainer = document.getElementById('previewContainer');
+    const selectedAssetFile = document.getElementById('selectedAssetFile');
+    const communityAssetsGrid = document.getElementById('communityAssetsGrid');
+    const commentInput = document.getElementById('commentInput');
+    const submitComment = document.getElementById('submitComment');
+    const commentsList = document.getElementById('commentsList');
+    const downloadHistoryLink = document.getElementById('downloadHistoryLink');
+    const downloadHistory = document.getElementById('downloadHistory');
+    const downloadHistoryList = document.getElementById('downloadHistoryList');
+    const homeLink = document.getElementById('homeLink');
+    
+    // New elements for profile customization
+    const profileNavLink = document.getElementById('profileNavLink');
+    const uploadNavLink = document.getElementById('uploadNavLink');
+    const profileContainer = document.getElementById('profileContainer');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    const avatarUpload = document.getElementById('avatarUpload');
+    const profileName = document.getElementById('profileName');
+    const profileBio = document.getElementById('profileBio');
+    const profileWebsite = document.getElementById('profileWebsite');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    
+    // Admin panel elements
+    const adminNavLink = document.getElementById('adminNavLink');
+    const adminPanel = document.getElementById('adminPanel');
+    const adminTabs = document.querySelectorAll('.admin-tab');
+    const adminContents = document.querySelectorAll('.admin-content');
+    const usersTableBody = document.getElementById('usersTableBody');
+    const assetsTableBody = document.getElementById('assetsTableBody');
+    const adminEmail = document.getElementById('adminEmail');
+    const addAdminBtn = document.getElementById('addAdminBtn');
+    const adminList = document.getElementById('adminList');
+    
+    // Initialize the application
+    function initApp() {
+        // Set up tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
                 // Remove active class from all tabs and content
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1837,416 +1845,511 @@
                 adminPanel.style.display = 'none';
                 downloadHistory.style.display = 'none';
                 
-                // Activate Community Assets tab
-                document.querySelector('[data-tab="tab5"]').classList.add('active');
-                document.getElementById('tab5').classList.add('active');
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
                 
-                // If user is not logged in, show login modal
-                if (!currentUser) {
-                    showNotification('Please login to upload assets', 'error');
-                    loginModal.style.display = 'flex';
-                } else {
-                    // Show upload form
-                    uploadModal.style.display = 'flex';
+                // If community tab is selected, render community assets
+                if (tab.dataset.tab === 'tab5') {
+                    renderCommunityAssets();
                 }
-                
-                // Render community assets
-                renderCommunityAssets();
             });
+        });
+        
+        // Home link functionality - redirect to Free Assets tab
+        homeLink.addEventListener('click', (e) => {
+            e.preventDefault();
             
-            // Profile link functionality
-            profileNavLink.addEventListener('click', (e) => {
-                e.preventDefault();
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Hide profile and admin containers if they're visible
+            profileContainer.style.display = 'none';
+            adminPanel.style.display = 'none';
+            downloadHistory.style.display = 'none';
+            
+            // Activate Free Assets tab
+            document.querySelector('[data-tab="tab2"]').classList.add('active');
+            document.getElementById('tab2').classList.add('active');
+        });
+        
+        // Set up admin tab functionality
+        adminTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all admin tabs and content
+                adminTabs.forEach(t => t.classList.remove('active'));
+                adminContents.forEach(c => c.classList.remove('active'));
                 
-                if (!currentUser) {
-                    showNotification('Please login to access your profile', 'error');
-                    loginModal.style.display = 'flex';
-                    return;
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById('admin' + tab.dataset.adminTab.charAt(0).toUpperCase() + tab.dataset.adminTab.slice(1)).classList.add('active');
+                
+                // Load data if needed
+                if (tab.dataset.adminTab === 'users') {
+                    loadUsersTable();
+                } else if (tab.dataset.adminTab === 'assets') {
+                    loadAssetsTable();
+                } else if (tab.dataset.adminTab === 'settings') {
+                    loadAdminSettings();
                 }
-                
-                // Hide all tab contents and admin panel
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                adminPanel.style.display = 'none';
-                downloadHistory.style.display = 'none';
-                
-                // Show profile container
-                profileContainer.style.display = 'block';
-                
-                // Load profile data
-                loadProfileData();
             });
+        });
+        
+        // Make Upload nav link switch to Community Assets tab
+        uploadNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
             
-            // Download history link functionality
-            downloadHistoryLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                if (!currentUser) {
-                    showNotification('Please login to view your download history', 'error');
-                    loginModal.style.display = 'flex';
-                    return;
-                }
-                
-                // Hide all tab contents and admin panel
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                adminPanel.style.display = 'none';
-                profileContainer.style.display = 'none';
-                
-                // Show download history
-                downloadHistory.style.display = 'block';
-                
-                // Load download history
-                loadDownloadHistory();
-            });
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            // Admin link functionality
-            adminNavLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Hide all tab contents and profile container
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                profileContainer.style.display = 'none';
-                downloadHistory.style.display = 'none';
-                
-                // Show admin panel
-                adminPanel.style.display = 'block';
-                
-                // Load users table by default
-                loadUsersTable();
-            });
+            // Hide profile and admin containers if they're visible
+            profileContainer.style.display = 'none';
+            adminPanel.style.display = 'none';
+            downloadHistory.style.display = 'none';
             
-            // Add admin functionality
-            addAdminBtn.addEventListener('click', () => {
-                const email = adminEmail.value.trim();
-                if (!email) {
-                    showNotification('Please enter an email address', 'error');
-                    return;
-                }
-                
-                if (!email.endsWith('@gmail.com')) {
-                    showNotification('Only Gmail addresses are allowed for admin privileges', 'error');
-                    return;
-                }
-                
-                if (adminUsers.includes(email)) {
-                    showNotification('This user is already an admin', 'error');
-                    return;
-                }
-                
-                adminUsers.push(email);
-                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
-                adminEmail.value = '';
-                
-                showNotification('Admin added successfully', 'success');
-                loadAdminSettings();
-            });
+            // Activate Community Assets tab
+            document.querySelector('[data-tab="tab5"]').classList.add('active');
+            document.getElementById('tab5').classList.add('active');
             
-            // Profile customization functionality
-            changeAvatarBtn.addEventListener('click', () => {
-                avatarUpload.click();
-            });
-            
-            avatarUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (!file.type.startsWith('image/')) {
-                    showNotification('Please select an image file', 'error');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    avatarPreview.src = e.target.result;
-                    
-                    // Update user avatar in UI
-                    if (currentUser) {
-                        const userImg = document.querySelector('.user-info img');
-                        if (userImg) {
-                            userImg.src = e.target.result;
-                        }
-                        
-                        // Save to user data
-                        currentUser.avatar = e.target.result;
-                        saveUserData();
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-            
-            saveProfileBtn.addEventListener('click', () => {
-                if (!currentUser) return;
-                
-                // Update user data
-                currentUser.displayName = profileName.value || currentUser.name;
-                currentUser.bio = profileBio.value;
-                currentUser.website = profileWebsite.value;
-                
-                // Save to localStorage
-                saveUserData();
-                
-                // Update UI
-                const userNameSpan = document.querySelector('.user-info span');
-                if (userNameSpan) {
-                    userNameSpan.textContent = currentUser.displayName;
-                }
-                
-                showNotification('Profile saved successfully!', 'success');
-            });
-            
-            // Set up modal functionality
-            loginButton.addEventListener('click', () => {
+            // If user is not logged in, show login modal
+            if (!currentUser) {
+                showNotification('Please login to upload assets', 'error');
                 loginModal.style.display = 'flex';
-            });
-            
-            signupButton.addEventListener('click', () => {
-                signupModal.style.display = 'flex';
-            });
-            
-            showUploadForm.addEventListener('click', () => {
-                if (!currentUser) {
-                    showNotification('Please login to upload assets', 'error');
-                    loginModal.style.display = 'flex';
-                    return;
-                }
-                
+            } else {
+                // Show upload form
                 uploadModal.style.display = 'flex';
-            });
+            }
             
-            closeLoginModal.addEventListener('click', () => {
+            // Render community assets
+            renderCommunityAssets();
+        });
+        
+        // Profile link functionality
+        profileNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showNotification('Please login to access your profile', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            // Hide all tab contents and admin panel
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            adminPanel.style.display = 'none';
+            downloadHistory.style.display = 'none';
+            
+            // Show profile container
+            profileContainer.style.display = 'block';
+            
+            // Load profile data
+            loadProfileData();
+        });
+        
+        // Download history link functionality
+        downloadHistoryLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showNotification('Please login to view your download history', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            // Hide all tab contents and admin panel
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            adminPanel.style.display = 'none';
+            profileContainer.style.display = 'none';
+            
+            // Show download history
+            downloadHistory.style.display = 'block';
+            
+            // Load download history
+            loadDownloadHistory();
+        });
+        
+        // Admin link functionality
+        adminNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Hide all tab contents and profile container
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            profileContainer.style.display = 'none';
+            downloadHistory.style.display = 'none';
+            
+            // Show admin panel
+            adminPanel.style.display = 'block';
+            
+            // Load users table by default
+            loadUsersTable();
+        });
+        
+        // Add admin functionality
+        addAdminBtn.addEventListener('click', () => {
+            const email = adminEmail.value.trim();
+            if (!email) {
+                showNotification('Please enter an email address', 'error');
+                return;
+            }
+            
+            if (!email.endsWith('@gmail.com')) {
+                showNotification('Only Gmail addresses are allowed for admin privileges', 'error');
+                return;
+            }
+            
+            if (adminUsers.includes(email)) {
+                showNotification('This user is already an admin', 'error');
+                return;
+            }
+            
+            adminUsers.push(email);
+            localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+            adminEmail.value = '';
+            
+            showNotification('Admin added successfully', 'success');
+            loadAdminSettings();
+        });
+        
+        // Profile customization functionality
+        changeAvatarBtn.addEventListener('click', () => {
+            avatarUpload.click();
+        });
+        
+        avatarUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select an image file', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.src = e.target.result;
+                
+                // Update user avatar in UI
+                if (currentUser) {
+                    const userImg = document.querySelector('.user-info img');
+                    if (userImg) {
+                        userImg.src = e.target.result;
+                    }
+                    
+                    // Save to user data
+                    currentUser.avatar = e.target.result;
+                    saveUserData();
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        saveProfileBtn.addEventListener('click', () => {
+            if (!currentUser) return;
+            
+            // Update user data
+            currentUser.displayName = profileName.value || currentUser.name;
+            currentUser.bio = profileBio.value;
+            currentUser.website = profileWebsite.value;
+            
+            // Save to localStorage
+            saveUserData();
+            
+            // Update UI
+            const userNameSpan = document.querySelector('.user-info span');
+            if (userNameSpan) {
+                userNameSpan.textContent = currentUser.displayName;
+            }
+            
+            showNotification('Profile saved successfully!', 'success');
+        });
+        
+        // Set up modal functionality
+        loginButton.addEventListener('click', () => {
+            loginModal.style.display = 'flex';
+        });
+        
+        signupButton.addEventListener('click', () => {
+            signupModal.style.display = 'flex';
+        });
+        
+        showUploadForm.addEventListener('click', () => {
+            if (!currentUser) {
+                showNotification('Please login to upload assets', 'error');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            uploadModal.style.display = 'flex';
+        });
+        
+        closeLoginModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+        
+        closeSignupModal.addEventListener('click', () => {
+            signupModal.style.display = 'none';
+        });
+        
+        closeVerificationModal.addEventListener('click', () => {
+            verificationModal.style.display = 'none';
+        });
+        
+        closeUploadModal.addEventListener('click', () => {
+            uploadModal.style.display = 'none';
+            resetUploadForm();
+        });
+        
+        switchToSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'none';
+            signupModal.style.display = 'flex';
+        });
+        
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
                 loginModal.style.display = 'none';
-            });
-            
-            closeSignupModal.addEventListener('click', () => {
+            }
+            if (e.target === signupModal) {
                 signupModal.style.display = 'none';
-            });
-            
-            closeUploadModal.addEventListener('click', () => {
+            }
+            if (e.target === verificationModal) {
+                verificationModal.style.display = 'none';
+            }
+            if (e.target === uploadModal) {
                 uploadModal.style.display = 'none';
                 resetUploadForm();
-            });
+            }
+            if (e.target === previewModal) {
+                previewModal.style.display = 'none';
+            }
+        });
+        
+        // File upload functionality
+        triggerPreviewUpload.addEventListener('click', () => {
+            assetPreview.click();
+        });
+        
+        triggerAssetUpload.addEventListener('click', () => {
+            assetFile.click();
+        });
+        
+        assetPreview.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            switchToSignup.addEventListener('click', (e) => {
-                e.preventDefault();
-                loginModal.style.display = 'none';
-                signupModal.style.display = 'flex';
-            });
+            const reader = new FileReader();
             
-            switchToLogin.addEventListener('click', (e) => {
-                e.preventDefault();
-                signupModal.style.display = 'none';
-                loginModal.style.display = 'flex';
-            });
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target === loginModal) {
-                    loginModal.style.display = 'none';
-                }
-                if (e.target === signupModal) {
-                    signupModal.style.display = 'none';
-                }
-                if (e.target === uploadModal) {
-                    uploadModal.style.display = 'none';
-                    resetUploadForm();
-                }
-                if (e.target === previewModal) {
-                    previewModal.style.display = 'none';
-                }
-            });
-            
-            // File upload functionality
-            triggerPreviewUpload.addEventListener('click', () => {
-                assetPreview.click();
-            });
-            
-            triggerAssetUpload.addEventListener('click', () => {
-                assetFile.click();
-            });
-            
-            assetPreview.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                
-                // Check if file is an image
-                if (file.type.startsWith('image/')) {
-                    reader.onload = (e) => {
-                        previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                    };
-                    reader.readAsDataURL(file);
-                } 
-                // Check if file is a video
-                else if (file.type.startsWith('video/')) {
-                    reader.onload = (e) => {
-                        previewContainer.innerHTML = `<video controls><source src="${e.target.result}" type="${file.type}"></video>`;
-                    };
-                    reader.readAsDataURL(file);
-                }
-                // Handle other cases
-                else {
-                    showNotification('Please select an image or video file for preview', 'error');
-                    e.target.value = '';
-                }
-            });
-            
-            assetFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                // Check if file has .rbxl or .rbxm extension
-                const fileName = file.name.toLowerCase();
-                if (!fileName.endsWith('.rbxl') && !fileName.endsWith('.rbxm')) {
-                    showNotification('Only .rbxl and .rbxm files are allowed', 'error');
-                    e.target.value = '';
-                    selectedAssetFile.textContent = 'No file selected';
-                    return;
-                }
-                
-                selectedAssetFile.textContent = file.name;
-            });
-            
-            // Upload functionality
-            uploadSubmit.addEventListener('click', () => {
-                const title = document.getElementById('assetTitle').value;
-                const description = document.getElementById('assetDescription').value;
-                const previewFile = assetPreview.files[0];
-                const assetFilePath = assetFile.files[0];
-                
-                if (!title || !description || !previewFile || !assetFilePath) {
-                    showNotification('Please fill all fields and select both preview and asset files', 'error');
-                    return;
-                }
-                
-                // Create a reader for the preview file
-                const reader = new FileReader();
+            // Check if file is an image
+            if (file.type.startsWith('image/')) {
                 reader.onload = (e) => {
-                    // Create a new community asset
-                    const newAsset = {
-                        id: Date.now(),
-                        title,
-                        description,
-                        preview: e.target.result,
-                        previewType: previewFile.type.startsWith('image/') ? 'image' : 'video',
-                        fileName: assetFilePath.name,
-                        uploadDate: new Date().toLocaleDateString(),
-                        uploader: currentUser.name,
-                        views: 0,
-                        downloads: 0,
-                        likes: 0
-                    };
-                    
-                    // Add to community assets
-                    communityAssets.push(newAsset);
-                    
-                    // Save to localStorage
-                    localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
-                    
-                    // Show success message
-                    showNotification('Asset uploaded successfully!', 'success');
-                    
-                    // Close modal and reset form
-                    uploadModal.style.display = 'none';
-                    resetUploadForm();
-                    
-                    // Update community assets display
-                    renderCommunityAssets();
+                    previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } 
+            // Check if file is a video
+            else if (file.type.startsWith('video/')) {
+                reader.onload = (e) => {
+                    previewContainer.innerHTML = `<video controls><source src="${e.target.result}" type="${file.type}"></video>`;
+                };
+                reader.readAsDataURL(file);
+            }
+            // Handle other cases
+            else {
+                showNotification('Please select an image or video file for preview', 'error');
+                e.target.value = '';
+            }
+        });
+        
+        assetFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check if file has .rbxl or .rbxm extension
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.rbxl') && !fileName.endsWith('.rbxm')) {
+                showNotification('Only .rbxl and .rbxm files are allowed', 'error');
+                e.target.value = '';
+                selectedAssetFile.textContent = 'No file selected';
+                return;
+            }
+            
+            selectedAssetFile.textContent = file.name;
+        });
+        
+        // Upload functionality
+        uploadSubmit.addEventListener('click', () => {
+            const title = document.getElementById('assetTitle').value;
+            const description = document.getElementById('assetDescription').value;
+            const previewFile = assetPreview.files[0];
+            const assetFilePath = assetFile.files[0];
+            
+            if (!title || !description || !previewFile || !assetFilePath) {
+                showNotification('Please fill all fields and select both preview and asset files', 'error');
+                return;
+            }
+            
+            // Create a reader for the preview file
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Create a new community asset
+                const newAsset = {
+                    id: Date.now(),
+                    title,
+                    description,
+                    preview: e.target.result,
+                    previewType: previewFile.type.startsWith('image/') ? 'image' : 'video',
+                    fileName: assetFilePath.name,
+                    uploadDate: new Date().toLocaleDateString(),
+                    uploader: currentUser.name,
+                    views: 0,
+                    downloads: 0,
+                    likes: 0
                 };
                 
-                reader.readAsDataURL(previewFile);
-            });
+                // Add to community assets
+                communityAssets.push(newAsset);
+                
+                // Save to localStorage
+                localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                
+                // Show success message
+                showNotification('Asset uploaded successfully!', 'success');
+                
+                // Close modal and reset form
+                uploadModal.style.display = 'none';
+                resetUploadForm();
+                
+                // Update community assets display
+                renderCommunityAssets();
+            };
             
-            // Login functionality
-            loginSubmit.addEventListener('click', () => {
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                if (!email || !password) {
-                    showNotification('Please fill in all fields', 'error');
-                    return;
-                }
-                
-                // Validate email format
-                if (!email.endsWith('@gmail.com')) {
-                    showNotification('Only Gmail addresses are allowed', 'error');
-                    return;
-                }
-                
-                // Check if user exists and password matches
-                const user = marketplaceUsers.find(u => u.email === email && u.password === password);
-                
-                if (!user) {
-                    showNotification('Email or password is incorrect', 'error');
-                    return;
-                }
-                
-                // Check if user is admin
-                const isAdmin = adminUsers.includes(email);
-                
-                // Set current user
-                currentUser = {
-                    name: user.name,
-                    email: user.email,
-                    password: user.password,
-                    avatar: user.avatar || 'https://randomuser.me/api/portraits/men/1.jpg',
-                    isAdmin: isAdmin,
-                    displayName: user.displayName,
-                    bio: user.bio,
-                    website: user.website,
-                    downloadHistory: user.downloadHistory || []
-                };
-                
-                // Load user preferences
-                loadUserPreferences();
-                
-                // Update UI
-                updateUserUI();
-                
-                // Close modal and show success message
-                loginModal.style.display = 'none';
-                showNotification('Login successful! Welcome back.', 'success');
-            });
+            reader.readAsDataURL(previewFile);
+        });
+        
+        // Login functionality
+        loginSubmit.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
-            // Signup functionality
-            signupSubmit.addEventListener('click', () => {
-                const name = document.getElementById('signupName').value;
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('signupPassword').value;
-                const confirmPassword = document.getElementById('signupConfirmPassword').value;
-                
-                if (!name || !email || !password || !confirmPassword) {
-                    showNotification('Please fill in all fields', 'error');
-                    return;
-                }
-                
-                // Validate email format
-                if (!email.endsWith('@gmail.com')) {
-                    showNotification('Only Gmail addresses are allowed', 'error');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    showNotification('Passwords do not match', 'error');
-                    return;
-                }
-                
-                // Check if user already exists
-                if (marketplaceUsers.some(u => u.email === email)) {
-                    showNotification('User with this email already exists', 'error');
-                    return;
-                }
-                
+            if (!email || !password) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+            
+            // Validate email format
+            if (!email.endsWith('@gmail.com')) {
+                showNotification('Only Gmail addresses are allowed', 'error');
+                return;
+            }
+            
+            // Check if user exists and password matches
+            const user = marketplaceUsers.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showNotification('Email or password is incorrect', 'error');
+                return;
+            }
+            
+            // Check if user is admin
+            const isAdmin = adminUsers.includes(email);
+            
+            // Set current user
+            currentUser = {
+                name: user.name,
+                email: user.email,
+                password: user.password,
+                avatar: user.avatar || 'https://randomuser.me/api/portraits/men/1.jpg',
+                isAdmin: isAdmin,
+                displayName: user.displayName,
+                bio: user.bio,
+                website: user.website,
+                downloadHistory: user.downloadHistory || []
+            };
+            
+            // Load user preferences
+            loadUserPreferences();
+            
+            // Update UI
+            updateUserUI();
+            
+            // Close modal and show success message
+            loginModal.style.display = 'none';
+            showNotification('Login successful! Welcome back.', 'success');
+        });
+        
+        // Signup functionality
+        signupSubmit.addEventListener('click', () => {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+            
+            // Validate email format
+            if (!email.endsWith('@gmail.com')) {
+                showNotification('Only Gmail addresses are allowed', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+            
+            // Check if user already exists
+            if (marketplaceUsers.some(u => u.email === email)) {
+                showNotification('User with this email already exists', 'error');
+                return;
+            }
+            
+            // Generate verification code
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Show verification modal
+            signupModal.style.display = 'none';
+            verificationModal.style.display = 'flex';
+            
+            // In a real application, you would send this code to the user's email
+            // For demonstration purposes, we'll just log it
+            console.log(`Verification code for ${email}: ${verificationCode}`);
+            showNotification(`Verification code sent to ${email} (check console for code)`, 'info');
+        });
+        
+        // Verify code functionality
+        verifyCodeBtn.addEventListener('click', () => {
+            const enteredCode = 
+                document.getElementById('verificationCode1').value +
+                document.getElementById('verificationCode2').value +
+                document.getElementById('verificationCode3').value +
+                document.getElementById('verificationCode4').value +
+                document.getElementById('verificationCode5').value +
+                document.getElementById('verificationCode6').value;
+            
+            if (enteredCode === verificationCode) {
                 // Check if user is admin
-                const isAdmin = adminUsers.includes(email);
+                const isAdmin = adminUsers.includes(document.getElementById('signupEmail').value);
                 
                 // Create new user
                 const newUser = {
-                    name: name,
-                    email: email,
-                    password: password,
+                    name: document.getElementById('signupName').value,
+                    email: document.getElementById('signupEmail').value,
+                    password: document.getElementById('signupPassword').value,
                     avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
                     isAdmin: isAdmin,
                     downloadHistory: []
@@ -2263,899 +2366,876 @@
                 updateUserUI();
                 
                 // Close modal and show success message
-                signupModal.style.display = 'none';
+                verificationModal.style.display = 'none';
                 showNotification('Account created successfully! Welcome to our marketplace.', 'success');
-            });
+            } else {
+                showNotification('Invalid verification code', 'error');
+            }
+        });
+        
+        // Resend code functionality
+        resendCode.addEventListener('click', () => {
+            // Generate new verification code
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // Set up preview buttons
-            document.querySelectorAll('.preview-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetName = btn.dataset.asset;
-                    const assetDescription = btn.dataset.description;
-                    const assetPrice = btn.dataset.price;
-                    
-                    // Find the asset card
-                    const assetCard = btn.closest('.asset-card');
-                    
-                    // Get stats
-                    const views = assetCard.querySelector('.view-count').textContent;
-                    const downloads = assetCard.querySelector('.download-count').textContent;
-                    const likes = assetCard.querySelector('.like-count').textContent;
-                    
-                    // Update preview modal
-                    document.getElementById('previewTitle').textContent = assetName;
-                    document.getElementById('previewName').textContent = assetName;
-                    document.getElementById('previewDescription').textContent = assetDescription;
-                    document.getElementById('previewViews').textContent = views;
-                    document.getElementById('previewDownloads').textContent = downloads;
-                    document.getElementById('previewLikes').textContent = likes;
-                    
-                    // Set appropriate icon based on asset name
-                    const previewIcon = document.getElementById('previewIcon');
-                    if (assetName.includes('Spaceship')) {
-                        previewIcon.className = 'fas fa-rocket';
-                    } else if (assetName.includes('Dragon')) {
-                        previewIcon.className = 'fas fa-dragon';
-                    } else if (assetName.includes('City')) {
-                        previewIcon.className = 'fas fa-city';
-                    } else if (assetName.includes('Character')) {
-                        previewIcon.className = 'fas fa-user-astronaut';
-                    } else if (assetName.includes('House')) {
-                        previewIcon.className = 'fas fa-home';
-                    } else if (assetName.includes('Car')) {
-                        previewIcon.className = 'fas fa-car';
-                    } else if (assetName.includes('Animation')) {
-                        previewIcon.className = 'fas fa-running';
-                    } else if (assetName.includes('Gesture')) {
-                        previewIcon.className = 'fas fa-hand-rock';
-                    } else if (assetName.includes('VFX')) {
-                        previewIcon.className = 'fas fa-wind';
-                    } else if (assetName.includes('Nature')) {
-                        previewIcon.className = 'fas fa-tree';
-                    } else if (assetName.includes('Crystal')) {
-                        previewIcon.className = 'fas fa-gem';
-                    } else if (assetName.includes('UI Kit')) {
-                        previewIcon.className = 'fas fa-cube';
-                    } else {
-                        previewIcon.className = 'fas fa-cube';
-                    }
-                    
-                    // Set appropriate action button
-                    if (assetPrice === 'FREE') {
-                        previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-                        previewActionBtn.onclick = () => {
-                            downloadAsset(assetName, assetCard);
-                            previewModal.style.display = 'none';
-                        };
-                    } else {
-                        previewActionBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
-                        previewActionBtn.onclick = () => {
-                            purchaseAsset(assetName, btn.dataset.price, assetCard);
-                            previewModal.style.display = 'none';
-                        };
-                    }
-                    
-                    // Set up like button
-                    const isLiked = likedAssets.includes(assetName);
-                    updateLikeButton(isLiked);
-                    
-                    likeBtn.onclick = () => {
-                        toggleLikeAsset(assetName, assetCard);
+            // In a real application, you would send this code to the user's email
+            // For demonstration purposes, we'll just log it
+            console.log(`New verification code for ${document.getElementById('signupEmail').value}: ${verificationCode}`);
+            showNotification(`New verification code sent (check console for code)`, 'info');
+        });
+        
+        // Set up preview buttons
+        document.querySelectorAll('.preview-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetName = btn.dataset.asset;
+                const assetDescription = btn.dataset.description;
+                const assetPrice = btn.dataset.price;
+                
+                // Find the asset card
+                const assetCard = btn.closest('.asset-card');
+                
+                // Get stats
+                const views = assetCard.querySelector('.view-count').textContent;
+                const downloads = assetCard.querySelector('.download-count').textContent;
+                const likes = assetCard.querySelector('.like-count').textContent;
+                
+                // Update preview modal
+                document.getElementById('previewTitle').textContent = assetName;
+                document.getElementById('previewName').textContent = assetName;
+                document.getElementById('previewDescription').textContent = assetDescription;
+                document.getElementById('previewViews').textContent = views;
+                document.getElementById('previewDownloads').textContent = downloads;
+                document.getElementById('previewLikes').textContent = likes;
+                
+                // Set appropriate icon based on asset name
+                const previewIcon = document.getElementById('previewIcon');
+                if (assetName.includes('Spaceship')) {
+                    previewIcon.className = 'fas fa-rocket';
+                } else if (assetName.includes('Dragon')) {
+                    previewIcon.className = 'fas fa-dragon';
+                } else if (assetName.includes('City')) {
+                    previewIcon.className = 'fas fa-city';
+                } else if (assetName.includes('Character')) {
+                    previewIcon.className = 'fas fa-user-astronaut';
+                } else if (assetName.includes('House')) {
+                    previewIcon.className = 'fas fa-home';
+                } else if (assetName.includes('Car')) {
+                    previewIcon.className = 'fas fa-car';
+                } else if (assetName.includes('Animation')) {
+                    previewIcon.className = 'fas fa-running';
+                } else if (assetName.includes('Gesture')) {
+                    previewIcon.className = 'fas fa-hand-rock';
+                } else if (assetName.includes('VFX')) {
+                    previewIcon.className = 'fas fa-wind';
+                } else if (assetName.includes('Nature')) {
+                    previewIcon.className = 'fas fa-tree';
+                } else if (assetName.includes('Crystal')) {
+                    previewIcon.className = 'fas fa-gem';
+                } else if (assetName.includes('UI Kit')) {
+                    previewIcon.className = 'fas fa-cube';
+                } else {
+                    previewIcon.className = 'fas fa-cube';
+                }
+                
+                // Set appropriate action button
+                if (assetPrice === 'FREE') {
+                    previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                    previewActionBtn.onclick = () => {
+                        downloadAsset(assetName, assetCard);
+                        previewModal.style.display = 'none';
                     };
-                    
-                    // Load comments
-                    loadComments(assetName);
-                    
-                    // Set current asset
-                    currentAsset = assetName;
-                    
-                    // Increment view count
-                    incrementViewCount(assetCard);
-                    
-                    previewModal.style.display = 'flex';
-                });
-            });
-            
-            // Close preview modal
-            closePreviewModal.addEventListener('click', () => {
-                previewModal.style.display = 'none';
-            });
-            
-            closePreviewBtn.addEventListener('click', () => {
-                previewModal.style.display = 'none';
-            });
-            
-            // Comment functionality
-            submitComment.addEventListener('click', () => {
-                if (!currentUser) {
-                    showNotification('Please login to comment', 'error');
-                    loginModal.style.display = 'flex';
-                    return;
+                } else {
+                    previewActionBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Buy Now';
+                    previewActionBtn.onclick = () => {
+                        purchaseAsset(assetName, btn.dataset.price, assetCard);
+                        previewModal.style.display = 'none';
+                    };
                 }
                 
-                const commentText = commentInput.value.trim();
-                if (!commentText) {
-                    showNotification('Please enter a comment', 'error');
-                    return;
-                }
+                // Set up like button
+                const isLiked = likedAssets.includes(assetName);
+                updateLikeButton(isLiked);
                 
-                addComment(commentText);
-                commentInput.value = '';
-            });
-            
-            commentInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    submitComment.click();
-                }
-            });
-            
-            // Purchase functionality
-            document.querySelectorAll('.purchase-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetName = btn.dataset.asset;
-                    const assetPrice = btn.dataset.price;
-                    const assetCard = btn.closest('.asset-card');
-                    
-                    if (!currentUser) {
-                        showNotification('Please login to purchase assets', 'error');
-                        loginModal.style.display = 'flex';
-                        return;
-                    }
-                    
-                    purchaseAsset(assetName, assetPrice, assetCard);
-                });
-            });
-            
-            // Download functionality
-            document.querySelectorAll('.download-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetName = btn.dataset.asset;
-                    const assetCard = btn.closest('.asset-card');
-                    
-                    if (!currentUser) {
-                        showNotification('Please login to download assets', 'error');
-                        loginModal.style.display = 'flex';
-                        return;
-                    }
-                    
-                    downloadAsset(assetName, assetCard);
-                });
-            });
-            
-            // Load community assets from localStorage
-            const storedAssets = localStorage.getItem('communityAssets');
-            if (storedAssets) {
-                communityAssets = JSON.parse(storedAssets);
-            }
-            
-            // Load user preferences
-            loadUserPreferences();
-            
-            // Initialize 3D background
-            init3DBackground();
-        }
-        
-        // Initialize 3D background
-        function init3DBackground() {
-            const container = document.getElementById('canvas-container');
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            container.appendChild(renderer.domElement);
-            
-            // Create particles
-            const particlesGeometry = new THREE.BufferGeometry();
-            const particlesCount = 1000;
-            
-            const posArray = new Float32Array(particlesCount * 3);
-            const colorArray = new Float32Array(particlesCount * 3);
-            
-            for (let i = 0; i < particlesCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 10;
-                colorArray[i] = Math.random();
-            }
-            
-            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-            
-            const particlesMaterial = new THREE.PointsMaterial({
-                size: 0.05,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-            scene.add(particlesMesh);
-            
-            camera.position.z = 5;
-            
-            // Animation
-            function animate() {
-                requestAnimationFrame(animate);
+                likeBtn.onclick = () => {
+                    toggleLikeAsset(assetName, assetCard);
+                };
                 
-                particlesMesh.rotation.x += 0.0005;
-                particlesMesh.rotation.y += 0.001;
+                // Load comments
+                loadComments(assetName);
                 
-                renderer.render(scene, camera);
-            }
-            
-            animate();
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-        
-        // Reset upload form
-        function resetUploadForm() {
-            document.getElementById('assetTitle').value = '';
-            document.getElementById('assetDescription').value = '';
-            assetPreview.value = '';
-            assetFile.value = '';
-            previewContainer.innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
-            selectedAssetFile.textContent = 'No file selected';
-        }
-        
-        // Render community assets
-        function renderCommunityAssets() {
-            // Clear current grid
-            communityAssetsGrid.innerHTML = '';
-            
-            if (communityAssets.length === 0) {
-                communityAssetsGrid.innerHTML = `
-                    <div class="community-assets-empty">
-                        <i class="fas fa-box-open"></i>
-                        <h3>No Community Assets Yet</h3>
-                        <p>Be the first to upload an asset to the community!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Add each asset to the grid
-            communityAssets.forEach(asset => {
-                const assetCard = document.createElement('div');
-                assetCard.className = 'asset-card';
-                assetCard.innerHTML = `
-                    <div class="asset-preview">
-                        ${asset.previewType === 'image' ? 
-                            `<img src="${asset.preview}" alt="${asset.title}">` : 
-                            `<video><source src="${asset.preview}"></video>`
-                        }
-                    </div>
-                    <div class="asset-info">
-                        <h3>${asset.title}</h3>
-                        <p>${asset.description}</p>
-                        <div class="asset-stats">
-                            <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">${asset.views}</span></div>
-                            <div class="stat"><i class="fas fa-download"></i> <span class="download-count">${asset.downloads}</span></div>
-                            <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">${asset.likes}</span></div>
-                        </div>
-                        <div class="asset-meta">
-                            <div class="free-badge">Community</div>
-                            <div class="asset-actions">
-                                <button class="btn btn-secondary preview-community-btn" data-asset-id="${asset.id}">
-                                    <i class="fas fa-eye"></i> Preview
-                                </button>
-                                <button class="btn btn-primary download-community-btn" data-asset-id="${asset.id}">
-                                    <i class="fas fa-download"></i> Download
-                                </button>
-                                ${currentUser && currentUser.isAdmin ? `
-                                    <button class="btn btn-danger delete-community-btn" data-asset-id="${asset.id}">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--medium);">
-                            Uploaded by ${asset.uploader} on ${asset.uploadDate}
-                        </div>
-                    </div>
-                `;
+                // Set current asset
+                currentAsset = assetName;
                 
-                communityAssetsGrid.appendChild(assetCard);
-            });
-            
-            // Add event listeners to preview and download buttons
-            document.querySelectorAll('.preview-community-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetId = btn.dataset.assetId;
-                    const asset = communityAssets.find(a => a.id == assetId);
-                    
-                    if (asset) {
-                        document.getElementById('previewTitle').textContent = asset.title;
-                        document.getElementById('previewName').textContent = asset.title;
-                        document.getElementById('previewDescription').textContent = asset.description;
-                        document.getElementById('previewViews').textContent = asset.views;
-                        document.getElementById('previewDownloads').textContent = asset.downloads;
-                        document.getElementById('previewLikes').textContent = asset.likes;
-                        
-                        const previewMedia = document.getElementById('previewMedia');
-                        if (asset.previewType === 'image') {
-                            previewMedia.innerHTML = `<img src="${asset.preview}" alt="${asset.title}" style="width: 100%; height: 100%; object-fit: contain;">`;
-                        } else {
-                            previewMedia.innerHTML = `<video controls style="width: 100%; height: 100%; object-fit: contain;"><source src="${asset.preview}"></video>`;
-                        }
-                        
-                        previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-                        previewActionBtn.onclick = () => {
-                            downloadCommunityAsset(asset);
-                            previewModal.style.display = 'none';
-                        };
-                        
-                        // Set up like button
-                        const isLiked = likedAssets.includes(asset.title);
-                        updateLikeButton(isLiked);
-                        
-                        likeBtn.onclick = () => {
-                            toggleLikeCommunityAsset(asset);
-                        };
-                        
-                        // Load comments
-                        loadComments(asset.title);
-                        
-                        // Set current asset
-                        currentAsset = asset.title;
-                        
-                        // Increment view count
-                        asset.views++;
-                        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
-                        
-                        previewModal.style.display = 'flex';
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.download-community-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetId = btn.dataset.assetId;
-                    const asset = communityAssets.find(a => a.id == assetId);
-                    
-                    if (asset) {
-                        downloadCommunityAsset(asset);
-                    }
-                });
-            });
-            
-            // Add event listeners to delete buttons (for admins)
-            document.querySelectorAll('.delete-community-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const assetId = btn.dataset.assetId;
-                    const asset = communityAssets.find(a => a.id == assetId);
-                    
-                    if (asset && confirm(`Are you sure you want to delete "${asset.title}"?`)) {
-                        communityAssets = communityAssets.filter(a => a.id != assetId);
-                        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
-                        showNotification('Asset deleted successfully', 'success');
-                        renderCommunityAssets();
-                    }
-                });
-            });
-        }
-        
-        // Download asset function
-        function downloadAsset(assetName, assetCard) {
-            // Increment download count
-            const downloadCount = assetCard.querySelector('.download-count');
-            downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
-            
-            // Add to download history
-            if (currentUser) {
-                currentUser.downloadHistory.unshift({
-                    name: assetName,
-                    date: new Date().toLocaleString(),
-                    type: 'marketplace'
-                });
+                // Increment view count
+                incrementViewCount(assetCard);
                 
-                // Save user data
-                saveUserData();
-            }
-            
-            showNotification(`Downloading "${assetName}"...`, 'info');
-            
-            // Create a dummy file content (in a real app, this would be the actual asset data)
-            const fileContent = `This is a simulation of the ${assetName} file content. In a real application, this would be binary asset data.`;
-            
-            // Create a blob with the file content
-            const blob = new Blob([fileContent], { type: 'application/octet-stream' });
-            
-            // Create a download link
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            
-            // Set an appropriate file extension based on asset type
-            let extension = '.rbxm';
-            if (assetName.includes('Animation') || assetName.includes('Pack')) {
-                extension = '.rbxl';
-            }
-            
-            a.download = `${assetName.replace(/\s+/g, '_')}${extension}`;
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showNotification(`"${assetName}" downloaded successfully!`, 'success');
-            }, 1000);
-        }
+                previewModal.style.display = 'flex';
+            });
+        });
         
-        // Download community asset
-        function downloadCommunityAsset(asset) {
+        // Close preview modal
+        closePreviewModal.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+        });
+        
+        closePreviewBtn.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+        });
+        
+        // Comment functionality
+        submitComment.addEventListener('click', () => {
             if (!currentUser) {
-                showNotification('Please login to download assets', 'error');
+                showNotification('Please login to comment', 'error');
                 loginModal.style.display = 'flex';
                 return;
             }
             
-            // Increment download count
-            asset.downloads++;
-            localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+            const commentText = commentInput.value.trim();
+            if (!commentText) {
+                showNotification('Please enter a comment', 'error');
+                return;
+            }
             
-            // Add to download history
+            addComment(commentText);
+            commentInput.value = '';
+        });
+        
+        commentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitComment.click();
+            }
+        });
+        
+        // Purchase functionality
+        document.querySelectorAll('.purchase-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetName = btn.dataset.asset;
+                const assetPrice = btn.dataset.price;
+                const assetCard = btn.closest('.asset-card');
+                
+                if (!currentUser) {
+                    showNotification('Please login to purchase assets', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                purchaseAsset(assetName, assetPrice, assetCard);
+            });
+        });
+        
+        // Download functionality
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetName = btn.dataset.asset;
+                const assetCard = btn.closest('.asset-card');
+                
+                if (!currentUser) {
+                    showNotification('Please login to download assets', 'error');
+                    loginModal.style.display = 'flex';
+                    return;
+                }
+                
+                downloadAsset(assetName, assetCard);
+            });
+        });
+        
+        // Load community assets from localStorage
+        const storedAssets = localStorage.getItem('communityAssets');
+        if (storedAssets) {
+            communityAssets = JSON.parse(storedAssets);
+        }
+        
+        // Load user preferences
+        loadUserPreferences();
+        
+        // Reattach event listeners to login and signup buttons after logout
+        updateUserUI();
+    }
+    
+    // Reset upload form
+    function resetUploadForm() {
+        document.getElementById('assetTitle').value = '';
+        document.getElementById('assetDescription').value = '';
+        assetPreview.value = '';
+        assetFile.value = '';
+        previewContainer.innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
+        selectedAssetFile.textContent = 'No file selected';
+    }
+    
+    // Render community assets
+    function renderCommunityAssets() {
+        // Clear current grid
+        communityAssetsGrid.innerHTML = '';
+        
+        if (communityAssets.length === 0) {
+            communityAssetsGrid.innerHTML = `
+                <div class="community-assets-empty">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Community Assets Yet</h3>
+                    <p>Be the first to upload an asset to the community!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Add each asset to the grid
+        communityAssets.forEach(asset => {
+            const assetCard = document.createElement('div');
+            assetCard.className = 'asset-card';
+            assetCard.innerHTML = `
+                <div class="asset-preview">
+                    ${asset.previewType === 'image' ? 
+                        `<img src="${asset.preview}" alt="${asset.title}">` : 
+                        `<video><source src="${asset.preview}"></video>`
+                    }
+                </div>
+                <div class="asset-info">
+                    <h3>${asset.title}</h3>
+                    <p>${asset.description}</p>
+                    <div class="asset-stats">
+                        <div class="stat"><i class="fas fa-eye"></i> <span class="view-count">${asset.views}</span></div>
+                        <div class="stat"><i class="fas fa-download"></i> <span class="download-count">${asset.downloads}</span></div>
+                        <div class="stat"><i class="fas fa-heart"></i> <span class="like-count">${asset.likes}</span></div>
+                    </div>
+                    <div class="asset-meta">
+                        <div class="free-badge">Community</div>
+                        <div class="asset-actions">
+                            <button class="btn btn-secondary preview-community-btn" data-asset-id="${asset.id}">
+                                <i class="fas fa-eye"></i> Preview
+                            </button>
+                            <button class="btn btn-primary download-community-btn" data-asset-id="${asset.id}">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            ${currentUser && currentUser.isAdmin ? `
+                                <button class="btn btn-danger delete-community-btn" data-asset-id="${asset.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--medium);">
+                        Uploaded by ${asset.uploader} on ${asset.uploadDate}
+                    </div>
+                </div>
+            `;
+            
+            communityAssetsGrid.appendChild(assetCard);
+        });
+        
+        // Add event listeners to preview and download buttons
+        document.querySelectorAll('.preview-community-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetId = btn.dataset.assetId;
+                const asset = communityAssets.find(a => a.id == assetId);
+                
+                if (asset) {
+                    document.getElementById('previewTitle').textContent = asset.title;
+                    document.getElementById('previewName').textContent = asset.title;
+                    document.getElementById('previewDescription').textContent = asset.description;
+                    document.getElementById('previewViews').textContent = asset.views;
+                    document.getElementById('previewDownloads').textContent = asset.downloads;
+                    document.getElementById('previewLikes').textContent = asset.likes;
+                    
+                    const previewMedia = document.getElementById('previewMedia');
+                    if (asset.previewType === 'image') {
+                        previewMedia.innerHTML = `<img src="${asset.preview}" alt="${asset.title}" style="width: 100%; height: 100%; object-fit: contain;">`;
+                    } else {
+                        previewMedia.innerHTML = `<video controls style="width: 100%; height: 100%; object-fit: contain;"><source src="${asset.preview}"></video>`;
+                    }
+                    
+                    previewActionBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                    previewActionBtn.onclick = () => {
+                        downloadCommunityAsset(asset);
+                        previewModal.style.display = 'none';
+                    };
+                    
+                    // Set up like button
+                    const isLiked = likedAssets.includes(asset.title);
+                    updateLikeButton(isLiked);
+                    
+                    likeBtn.onclick = () => {
+                        toggleLikeCommunityAsset(asset);
+                    };
+                    
+                    // Load comments
+                    loadComments(asset.title);
+                    
+                    // Set current asset
+                    currentAsset = asset.title;
+                    
+                    // Increment view count
+                    asset.views++;
+                    localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                    
+                    previewModal.style.display = 'flex';
+                }
+            });
+        });
+        
+        document.querySelectorAll('.download-community-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetId = btn.dataset.assetId;
+                const asset = communityAssets.find(a => a.id == assetId);
+                
+                if (asset) {
+                    downloadCommunityAsset(asset);
+                }
+            });
+        });
+        
+        // Add event listeners to delete buttons (for admins)
+        document.querySelectorAll('.delete-community-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const assetId = btn.dataset.assetId;
+                const asset = communityAssets.find(a => a.id == assetId);
+                
+                if (asset && confirm(`Are you sure you want to delete "${asset.title}"?`)) {
+                    communityAssets = communityAssets.filter(a => a.id != assetId);
+                    localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+                    showNotification('Asset deleted successfully', 'success');
+                    renderCommunityAssets();
+                }
+            });
+        });
+    }
+    
+    // Download asset function
+    function downloadAsset(assetName, assetCard) {
+        // Increment download count
+        const downloadCount = assetCard.querySelector('.download-count');
+        downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
+        
+        // Add to download history
+        if (currentUser) {
             currentUser.downloadHistory.unshift({
-                name: asset.title,
+                name: assetName,
                 date: new Date().toLocaleString(),
-                type: 'community'
+                type: 'marketplace'
             });
             
             // Save user data
             saveUserData();
-            
-            showNotification(`Downloading "${asset.title}"...`, 'info');
-            
-            // Create a dummy file content (in a real app, this would be the actual asset data)
-            const fileContent = `This is a simulation of the ${asset.title} file content. In a real application, this would be binary asset data.`;
-            
-            // Create a blob with the file content
-            const blob = new Blob([fileContent], { type: 'application/octet-stream' });
-            
-            // Create a download link
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = asset.fileName;
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showNotification(`"${asset.title}" downloaded successfully!`, 'success');
-                renderCommunityAssets();
-            }, 1000);
         }
         
-        // Update user UI
-        function updateUserUI() {
-            if (currentUser) {
-                userActions.innerHTML = `
-                    <div class="user-info">
-                        <img src="${currentUser.avatar}" alt="${currentUser.name}">
-                        <span>${currentUser.displayName || currentUser.name}</span>
-                    </div>
-                    <button class="auth-button login-btn" id="logoutButton">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                `;
-                
-                // Show admin link if user is admin
-                if (currentUser.isAdmin) {
-                    adminNavLink.style.display = 'flex';
-                } else {
-                    adminNavLink.style.display = 'none';
-                }
-                
-                document.getElementById('logoutButton').addEventListener('click', logout);
-            } else {
-                userActions.innerHTML = `
-                    <button class="auth-button login-btn" id="loginButton">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </button>
-                    <button class="auth-button signup-btn" id="signupButton">
-                        <i class="fas fa-user-plus"></i> Sign Up
-                    </button>
-                `;
-                
-                // Reattach event listeners to the login and signup buttons
-                document.getElementById('loginButton').addEventListener('click', () => {
-                    loginModal.style.display = 'flex';
-                });
-                document.getElementById('signupButton').addEventListener('click', () => {
-                    signupModal.style.display = 'flex';
-                });
-            }
+        showNotification(`Downloading "${assetName}"...`, 'info');
+        
+        // Create a dummy file content (in a real app, this would be the actual asset data)
+        const fileContent = `This is a simulation of the ${assetName} file content. In a real application, this would be binary asset data.`;
+        
+        // Create a blob with the file content
+        const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+        
+        // Create a download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Set an appropriate file extension based on asset type
+        let extension = '.rbxm';
+        if (assetName.includes('Animation') || assetName.includes('Pack')) {
+            extension = '.rbxl';
         }
         
-        // Logout function
-        function logout() {
-            currentUser = null;
-            showNotification('Logged out successfully', 'success');
-            updateUserUI();
+        a.download = `${assetName.replace(/\s+/g, '_')}${extension}`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification(`"${assetName}" downloaded successfully!`, 'success');
+        }, 1000);
+    }
+    
+    // Download community asset
+    function downloadCommunityAsset(asset) {
+        if (!currentUser) {
+            showNotification('Please login to download assets', 'error');
+            loginModal.style.display = 'flex';
+            return;
         }
         
-        // Load user preferences from localStorage
-        function loadUserPreferences() {
-            if (!currentUser) return;
-            
-            const userPrefs = JSON.parse(localStorage.getItem(`userPrefs_${currentUser.email}`));
-            if (userPrefs) {
-                likedAssets = userPrefs.likedAssets || [];
-                purchasedAssets = userPrefs.purchasedAssets || [];
-                
-                // Load profile data if available
-                if (userPrefs.displayName) {
-                    currentUser.displayName = userPrefs.displayName;
-                }
-                if (userPrefs.bio) {
-                    currentUser.bio = userPrefs.bio;
-                }
-                if (userPrefs.website) {
-                    currentUser.website = userPrefs.website;
-                }
-                if (userPrefs.avatar) {
-                    currentUser.avatar = userPrefs.avatar;
-                }
-            }
-        }
+        // Increment download count
+        asset.downloads++;
+        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
         
-        // Save user data to localStorage
-        function saveUserData() {
-            if (!currentUser) return;
-            
-            // Update user in marketplaceUsers
-            const userIndex = marketplaceUsers.findIndex(u => u.email === currentUser.email);
-            if (userIndex !== -1) {
-                marketplaceUsers[userIndex] = currentUser;
-                localStorage.setItem('marketplaceUsers', JSON.stringify(marketplaceUsers));
-            }
-            
-            // Save user preferences separately
-            const userPrefs = {
-                likedAssets,
-                purchasedAssets,
-                displayName: currentUser.displayName,
-                bio: currentUser.bio,
-                website: currentUser.website,
-                avatar: currentUser.avatar
-            };
-            
-            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
-        }
+        // Add to download history
+        currentUser.downloadHistory.unshift({
+            name: asset.title,
+            date: new Date().toLocaleString(),
+            type: 'community'
+        });
         
-        // Load profile data into the form
-        function loadProfileData() {
-            if (!currentUser) return;
-            
-            profileName.value = currentUser.displayName || currentUser.name;
-            profileBio.value = currentUser.bio || '';
-            profileWebsite.value = currentUser.website || '';
-            avatarPreview.src = currentUser.avatar;
-        }
+        // Save user data
+        saveUserData();
         
-        // Load download history
-        function loadDownloadHistory() {
-            downloadHistoryList.innerHTML = '';
-            
-            if (!currentUser || !currentUser.downloadHistory || currentUser.downloadHistory.length === 0) {
-                downloadHistoryList.innerHTML = `
-                    <div class="history-empty">
-                        <i class="fas fa-box-open"></i>
-                        <h3>No Download History</h3>
-                        <p>Your downloaded assets will appear here</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            currentUser.downloadHistory.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <div class="history-item-info">
-                        <div class="history-item-name">${item.name}</div>
-                        <div class="history-item-date">${item.date} • ${item.type === 'marketplace' ? 'Marketplace' : 'Community'}</div>
-                    </div>
-                    <button class="btn btn-secondary">Download Again</button>
-                `;
-                
-                downloadHistoryList.appendChild(historyItem);
-            });
-        }
+        showNotification(`Downloading "${asset.title}"...`, 'info');
         
-        // Show notification
-        function showNotification(message, type) {
-            notificationText.textContent = message;
-            notification.className = 'notification show';
-            if (type) {
-                notification.classList.add(type);
-            }
-            
-            setTimeout(() => {
-                notification.className = 'notification';
-                if (type) {
-                    notification.classList.remove(type);
-                }
-            }, 3000);
-        }
+        // Create a dummy file content (in a real app, this would be the actual asset data)
+        const fileContent = `This is a simulation of the ${asset.title} file content. In a real application, this would be binary asset data.`;
         
-        // Update like button appearance
-        function updateLikeButton(isLiked) {
-            if (isLiked) {
-                likeBtn.classList.add('liked');
-                likeBtn.innerHTML = '<i class="fas fa-heart"></i> Liked';
-            } else {
-                likeBtn.classList.remove('liked');
-                likeBtn.innerHTML = '<i class="fas fa-heart"></i> Like';
-            }
-        }
+        // Create a blob with the file content
+        const blob = new Blob([fileContent], { type: 'application/octet-stream' });
         
-        // Toggle like for an asset
-        function toggleLikeAsset(assetName, assetCard) {
-            if (!currentUser) {
-                showNotification('Please login to like assets', 'error');
-                loginModal.style.display = 'flex';
-                return;
-            }
-            
-            const likeCount = assetCard.querySelector('.like-count');
-            const index = likedAssets.indexOf(assetName);
-            
-            if (index === -1) {
-                // Like the asset
-                likedAssets.push(assetName);
-                likeCount.textContent = parseInt(likeCount.textContent) + 1;
-                updateLikeButton(true);
-                showNotification(`Liked "${assetName}"`, 'success');
-            } else {
-                // Unlike the asset
-                likedAssets.splice(index, 1);
-                likeCount.textContent = parseInt(likeCount.textContent) - 1;
-                updateLikeButton(false);
-                showNotification(`Removed like from "${assetName}"`, 'info');
-            }
-            
-            // Save user preferences
-            const userPrefs = {
-                likedAssets,
-                purchasedAssets,
-                displayName: currentUser.displayName,
-                bio: currentUser.bio,
-                website: currentUser.website,
-                avatar: currentUser.avatar
-            };
-            
-            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
-        }
+        // Create a download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = asset.fileName;
+        document.body.appendChild(a);
+        a.click();
         
-        // Toggle like for a community asset
-        function toggleLikeCommunityAsset(asset) {
-            if (!currentUser) {
-                showNotification('Please login to like assets', 'error');
-                loginModal.style.display = 'flex';
-                return;
-            }
-            
-            const index = likedAssets.indexOf(asset.title);
-            
-            if (index === -1) {
-                // Like the asset
-                likedAssets.push(asset.title);
-                asset.likes++;
-                updateLikeButton(true);
-                showNotification(`Liked "${asset.title}"`, 'success');
-            } else {
-                // Unlike the asset
-                likedAssets.splice(index, 1);
-                asset.likes--;
-                updateLikeButton(false);
-                showNotification(`Removed like from "${asset.title}"`, 'info');
-            }
-            
-            localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
-            
-            // Save user preferences
-            const userPrefs = {
-                likedAssets,
-                purchasedAssets,
-                displayName: currentUser.displayName,
-                bio: currentUser.bio,
-                website: currentUser.website,
-                avatar: currentUser.avatar
-            };
-            
-            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
-            
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification(`"${asset.title}" downloaded successfully!`, 'success');
             renderCommunityAssets();
-        }
-        
-        // Purchase asset
-        function purchaseAsset(assetName, price, assetCard) {
-            if (purchasedAssets.includes(assetName)) {
-                showNotification(`You already own "${assetName}"`, 'info');
-                return;
-            }
+        }, 1000);
+    }
+    
+    // Update user UI
+    function updateUserUI() {
+        if (currentUser) {
+            userActions.innerHTML = `
+                <div class="user-info">
+                    <img src="${currentUser.avatar}" alt="${currentUser.name}">
+                    <span>${currentUser.displayName || currentUser.name}</span>
+                </div>
+                <button class="auth-button login-btn" id="logoutButton">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            `;
             
-            purchasedAssets.push(assetName);
-            
-            // Save user preferences
-            const userPrefs = {
-                likedAssets,
-                purchasedAssets,
-                displayName: currentUser.displayName,
-                bio: currentUser.bio,
-                website: currentUser.website,
-                avatar: currentUser.avatar
-            };
-            
-            localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
-            
-            // Increment download count
-            const downloadCount = assetCard.querySelector('.download-count');
-            downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
-            
-            showNotification(`Purchased "${assetName}" for $${price}!`, 'success');
-            
-            // In a real application, you would process payment here
-        }
-        
-        // Increment view count
-        function incrementViewCount(assetCard) {
-            const viewCount = assetCard.querySelector('.view-count');
-            viewCount.textContent = parseInt(viewCount.textContent) + 1;
-        }
-        
-        // Load comments for an asset
-        function loadComments(assetName) {
-            commentsList.innerHTML = '';
-            
-            // Initialize comments for this asset if not exists
-            if (!assetComments[assetName]) {
-                assetComments[assetName] = [];
-            }
-            
-            if (assetComments[assetName].length === 0) {
-                const noComments = document.createElement('div');
-                noComments.className = 'comment';
-                noComments.innerHTML = `
-                    <div class="comment-text">No comments yet. Be the first to comment!</div>
-                `;
-                
-                commentsList.appendChild(noComments);
+            // Show admin link if user is admin
+            if (currentUser.isAdmin) {
+                adminNavLink.style.display = 'flex';
             } else {
-                assetComments[assetName].forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.className = 'comment';
-                    commentElement.innerHTML = `
-                        <div class="comment-header">
-                            <span class="comment-user">${comment.user}</span>
-                            <span class="comment-date">${comment.date}</span>
-                        </div>
-                        <div class="comment-text">${comment.text}</div>
-                    `;
-                    
-                    commentsList.appendChild(commentElement);
-                });
+                adminNavLink.style.display = 'none';
+            }
+            
+            document.getElementById('logoutButton').addEventListener('click', logout);
+        } else {
+            userActions.innerHTML = `
+                <button class="auth-button login-btn" id="loginButton">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button class="auth-button signup-btn" id="signupButton">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+            `;
+            
+            // Reattach event listeners to the login and signup buttons
+            document.getElementById('loginButton').addEventListener('click', () => {
+                loginModal.style.display = 'flex';
+            });
+            document.getElementById('signupButton').addEventListener('click', () => {
+                signupModal.style.display = 'flex';
+            });
+        }
+    }
+    
+    // Logout function
+    function logout() {
+        currentUser = null;
+        showNotification('Logged out successfully', 'success');
+        updateUserUI();
+    }
+    
+    // Load user preferences from localStorage
+    function loadUserPreferences() {
+        if (!currentUser) return;
+        
+        const userPrefs = JSON.parse(localStorage.getItem(`userPrefs_${currentUser.email}`));
+        if (userPrefs) {
+            likedAssets = userPrefs.likedAssets || [];
+            purchasedAssets = userPrefs.purchasedAssets || [];
+            
+            // Load profile data if available
+            if (userPrefs.displayName) {
+                currentUser.displayName = userPrefs.displayName;
+            }
+            if (userPrefs.bio) {
+                currentUser.bio = userPrefs.bio;
+            }
+            if (userPrefs.website) {
+                currentUser.website = userPrefs.website;
+            }
+            if (userPrefs.avatar) {
+                currentUser.avatar = userPrefs.avatar;
+            }
+        }
+    }
+    
+    // Save user data to localStorage
+    function saveUserData() {
+        if (!currentUser) return;
+        
+        // Update user in marketplaceUsers
+        const userIndex = marketplaceUsers.findIndex(u => u.email === currentUser.email);
+        if (userIndex !== -1) {
+            marketplaceUsers[userIndex] = currentUser;
+            localStorage.setItem('marketplaceUsers', JSON.stringify(marketplaceUsers));
+        }
+        
+        // Save user preferences separately
+        const userPrefs = {
+            likedAssets,
+            purchasedAssets,
+            displayName: currentUser.displayName,
+            bio: currentUser.bio,
+            website: currentUser.website,
+            avatar: currentUser.avatar
+        };
+        
+        localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+    }
+    
+    // Load profile data into the form
+    function loadProfileData() {
+        if (!currentUser) return;
+        
+        profileName.value = currentUser.displayName || currentUser.name;
+        profileBio.value = currentUser.bio || '';
+        profileWebsite.value = currentUser.website || '';
+        avatarPreview.src = currentUser.avatar;
+    }
+    
+    // Load download history
+    function loadDownloadHistory() {
+        downloadHistoryList.innerHTML = '';
+        
+        if (!currentUser || !currentUser.downloadHistory || currentUser.downloadHistory.length === 0) {
+            downloadHistoryList.innerHTML = `
+                <div class="history-empty">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Download History</h3>
+                    <p>Your downloaded assets will appear here</p>
+                </div>
+            `;
+            return;
+        }
+        
+        currentUser.downloadHistory.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-item-info">
+                    <div class="history-item-name">${item.name}</div>
+                    <div class="history-item-date">${item.date} • ${item.type === 'marketplace' ? 'Marketplace' : 'Community'}</div>
+                </div>
+                <button class="btn btn-secondary">Download Again</button>
+            `;
+            
+            downloadHistoryList.appendChild(historyItem);
+        });
+    }
+    
+    // Show notification
+    function showNotification(message, type) {
+        notificationText.textContent = message;
+        notification.className = 'notification show';
+        if (type) {
+            notification.classList.add(type);
+        }
+        
+        setTimeout(() => {
+            notification.className = 'notification';
+            if (type) {
+                notification.classList.remove(type);
+            }
+        }, 3000);
+    }
+    
+    // Update like button appearance
+    function updateLikeButton(isLiked) {
+        if (isLiked) {
+            likeBtn.classList.add('liked');
+            likeBtn.innerHTML = '<i class="fas fa-heart"></i> Liked';
+        } else {
+            likeBtn.classList.remove('liked');
+            likeBtn.innerHTML = '<i class="fas fa-heart"></i> Like';
+        }
+    }
+    
+    // Toggle like for an asset
+    function toggleLikeAsset(assetName, assetCard) {
+        if (!currentUser) {
+            showNotification('Please login to like assets', 'error');
+            loginModal.style.display = 'flex';
+            return;
+        }
+        
+        const likeCount = assetCard.querySelector('.like-count');
+        const index = likedAssets.indexOf(assetName);
+        
+        if (index === -1) {
+            // Like the asset
+            likedAssets.push(assetName);
+            likeCount.textContent = parseInt(likeCount.textContent) + 1;
+            updateLikeButton(true);
+            showNotification(`Liked "${assetName}"`, 'success');
+        } else {
+            // Unlike the asset
+            likedAssets.splice(index, 1);
+            likeCount.textContent = parseInt(likeCount.textContent) - 1;
+            updateLikeButton(false);
+            showNotification(`Removed like from "${assetName}"`, 'info');
+        }
+        
+        // Save user preferences
+        const userPrefs = {
+            likedAssets,
+            purchasedAssets,
+            displayName: currentUser.displayName,
+            bio: currentUser.bio,
+            website: currentUser.website,
+            avatar: currentUser.avatar
+        };
+        
+        localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+    }
+    
+    // Toggle like for a community asset
+    function toggleLikeCommunityAsset(asset) {
+        if (!currentUser) {
+            showNotification('Please login to like assets', 'error');
+            loginModal.style.display = 'flex';
+            return;
+        }
+        
+        const index = likedAssets.indexOf(asset.title);
+        
+        if (index === -1) {
+            // Like the asset
+            likedAssets.push(asset.title);
+            asset.likes++;
+            updateLikeButton(true);
+            showNotification(`Liked "${asset.title}"`, 'success');
+        } else {
+            // Unlike the asset
+            likedAssets.splice(index, 1);
+            asset.likes--;
+            updateLikeButton(false);
+            showNotification(`Removed like from "${asset.title}"`, 'info');
+        }
+        
+        localStorage.setItem('communityAssets', JSON.stringify(communityAssets));
+        
+        // Save user preferences
+        const userPrefs = {
+            likedAssets,
+            purchasedAssets,
+            displayName: currentUser.displayName,
+            bio: currentUser.bio,
+            website: currentUser.website,
+            avatar: currentUser.avatar
+        };
+        
+        localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+        
+        renderCommunityAssets();
+    }
+    
+    // Purchase asset
+    function purchaseAsset(assetName, price, assetCard) {
+        if (purchasedAssets.includes(assetName)) {
+            showNotification(`You already own "${assetName}"`, 'info');
+            return;
+        }
+        
+        purchasedAssets.push(assetName);
+        
+        // Save user preferences
+        const userPrefs = {
+            likedAssets,
+            purchasedAssets,
+            displayName: currentUser.displayName,
+            bio: currentUser.bio,
+            website: currentUser.website,
+            avatar: currentUser.avatar
+        };
+        
+        localStorage.setItem(`userPrefs_${currentUser.email}`, JSON.stringify(userPrefs));
+        
+        // Increment download count
+        const downloadCount = assetCard.querySelector('.download-count');
+        downloadCount.textContent = parseInt(downloadCount.textContent) + 1;
+        
+        showNotification(`Purchased "${assetName}" for $${price}!`, 'success');
+        
+        // In a real application, you would process payment here
+    }
+    
+    // Increment view count
+    function incrementViewCount(assetCard) {
+        const viewCount = assetCard.querySelector('.view-count');
+        viewCount.textContent = parseInt(viewCount.textContent) + 1;
+    }
+    
+    // Load comments for an asset
+    function loadComments(assetName) {
+        commentsList.innerHTML = '';
+        
+        // Initialize comments for this asset if not exists
+        if (!assetComments[assetName]) {
+            assetComments[assetName] = [];
+        }
+        
+        if (assetComments[assetName].length === 0) {
+            const noComments = document.createElement('div');
+            noComments.className = 'comment';
+            noComments.innerHTML = `
+                <div class="comment-text">No comments yet. Be the first to comment!</div>
+            `;
+            
+            commentsList.appendChild(noComments);
+        } else {
+            assetComments[assetName].forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-user">${comment.user}</span>
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <div class="comment-text">${comment.text}</div>
+                `;
+                
+                commentsList.appendChild(commentElement);
+            });
+        }
+    }
+    
+    // Add comment to an asset
+    function addComment(commentText) {
+        if (!currentAsset) return;
+        
+        // Initialize comments for this asset if not exists
+        if (!assetComments[currentAsset]) {
+            assetComments[currentAsset] = [];
+        }
+        
+        // Add new comment
+        assetComments[currentAsset].push({
+            user: currentUser.name,
+            text: commentText,
+            date: new Date().toLocaleString()
+        });
+        
+        // Save comments to localStorage
+        localStorage.setItem('assetComments', JSON.stringify(assetComments));
+        
+        // Reload comments
+        loadComments(currentAsset);
+        
+        showNotification('Comment added!', 'success');
+    }
+    
+    // Load users table for admin panel
+    function loadUsersTable() {
+        usersTableBody.innerHTML = '';
+        
+        marketplaceUsers.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>Active</td>
+                <td>${user.isAdmin ? 'Yes' : 'No'}</td>
+                <td class="admin-actions">
+                    <button class="btn btn-secondary">Edit</button>
+                    <button class="btn btn-danger">Delete</button>
+                </td>
+            `;
+            
+            usersTableBody.appendChild(row);
+        });
+    }
+    
+    // Load assets table for admin panel
+    function loadAssetsTable() {
+        assetsTableBody.innerHTML = '';
+        
+        // Add predefined assets
+        const predefinedAssets = [
+            { name: 'Sci-Fi Spaceship', type: 'Model', uploader: 'System', price: '$24.99', status: 'Approved' },
+            { name: 'Fantasy Dragon', type: 'Character', uploader: 'System', price: '$39.99', status: 'Approved' },
+            { name: 'Modular City Pack', type: 'Model', uploader: 'System', price: '$49.99', status: 'Approved' },
+            { name: 'Nature Pack', type: 'Environment', uploader: 'System', price: 'FREE', status: 'Approved' },
+            { name: 'Crystal Collection', type: 'Model', uploader: 'System', price: 'FREE', status: 'Approved' }
+        ];
+        
+        predefinedAssets.forEach(asset => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${asset.name}</td>
+                <td>${asset.type}</td>
+                <td>${asset.uploader}</td>
+                <td>${asset.price}</td>
+                <td>${asset.status}</td>
+                <td class="admin-actions">
+                    <button class="btn btn-secondary">Edit</button>
+                    <button class="btn btn-danger">Delete</button>
+                </td>
+            `;
+            
+            assetsTableBody.appendChild(row);
+        });
+        
+        // Add community assets
+        communityAssets.forEach(asset => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${asset.title}</td>
+                <td>Community</td>
+                <td>${asset.uploader}</td>
+                <td>FREE</td>
+                <td>Approved</td>
+                <td class="admin-actions">
+                    <button class="btn btn-secondary">Edit</button>
+                    <button class="btn btn-danger">Delete</button>
+                </td>
+            `;
+            
+            assetsTableBody.appendChild(row);
+        });
+    }
+    
+    // Load admin settings
+    function loadAdminSettings() {
+        adminList.innerHTML = '';
+        
+        adminUsers.forEach(email => {
+            const li = document.createElement('li');
+            li.textContent = email;
+            adminList.appendChild(li);
+        });
+    }
+    
+    // Move to next verification input field
+    function moveToNext(current, event) {
+        const form = event.target.form;
+        const index = Array.prototype.indexOf.call(form, event.target);
+        
+        // Move to next field if current field is filled
+        if (event.target.value.length === event.target.maxLength) {
+            if (form.elements[index + 1]) {
+                form.elements[index + 1].focus();
             }
         }
         
-        // Add comment to an asset
-        function addComment(commentText) {
-            if (!currentAsset) return;
-            
-            // Initialize comments for this asset if not exists
-            if (!assetComments[currentAsset]) {
-                assetComments[currentAsset] = [];
+        // Move to previous field if backspace is pressed on empty field
+        if (event.key === 'Backspace' && event.target.value.length === 0) {
+            if (form.elements[index - 1]) {
+                form.elements[index - 1].focus();
             }
-            
-            // Add new comment
-            assetComments[currentAsset].push({
-                user: currentUser.name,
-                text: commentText,
-                date: new Date().toLocaleString()
-            });
-            
-            // Save comments to localStorage
-            localStorage.setItem('assetComments', JSON.stringify(assetComments));
-            
-            // Reload comments
-            loadComments(currentAsset);
-            
-            showNotification('Comment added!', 'success');
         }
-        
-        // Load users table for admin panel
-        function loadUsersTable() {
-            usersTableBody.innerHTML = '';
-            
-            marketplaceUsers.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>Active</td>
-                    <td>${user.isAdmin ? 'Yes' : 'No'}</td>
-                    <td class="admin-actions">
-                        <button class="btn btn-secondary">Edit</button>
-                        <button class="btn btn-danger">Delete</button>
-                    </td>
-                `;
-                
-                usersTableBody.appendChild(row);
-            });
-        }
-        
-        // Load assets table for admin panel
-        function loadAssetsTable() {
-            assetsTableBody.innerHTML = '';
-            
-            // Add predefined assets
-            const predefinedAssets = [
-                { name: 'Sci-Fi Spaceship', type: 'Model', uploader: 'System', price: '$24.99', status: 'Approved' },
-                { name: 'Fantasy Dragon', type: 'Character', uploader: 'System', price: '$39.99', status: 'Approved' },
-                { name: 'Modular City Pack', type: 'Model', uploader: 'System', price: '$49.99', status: 'Approved' },
-                { name: 'Nature Pack', type: 'Environment', uploader: 'System', price: 'FREE', status: 'Approved' },
-                { name: 'Crystal Collection', type: 'Model', uploader: 'System', price: 'FREE', status: 'Approved' }
-            ];
-            
-            predefinedAssets.forEach(asset => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${asset.name}</td>
-                    <td>${asset.type}</td>
-                    <td>${asset.uploader}</td>
-                    <td>${asset.price}</td>
-                    <td>${asset.status}</td>
-                    <td class="admin-actions">
-                        <button class="btn btn-secondary">Edit</button>
-                        <button class="btn btn-danger">Delete</button>
-                    </td>
-                `;
-                
-                assetsTableBody.appendChild(row);
-            });
-            
-            // Add community assets
-            communityAssets.forEach(asset => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${asset.title}</td>
-                    <td>Community</td>
-                    <td>${asset.uploader}</td>
-                    <td>FREE</td>
-                    <td>Approved</td>
-                    <td class="admin-actions">
-                        <button class="btn btn-secondary">Edit</button>
-                        <button class="btn btn-danger">Delete</button>
-                    </td>
-                `;
-                
-                assetsTableBody.appendChild(row);
-            });
-        }
-        
-        // Load admin settings
-        function loadAdminSettings() {
-            adminList.innerHTML = '';
-            
-            adminUsers.forEach(email => {
-                const li = document.createElement('li');
-                li.textContent = email;
-                adminList.appendChild(li);
-            });
-        }
-        
-        // Initialize the app when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+    }
+    
+    // Initialize the app when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', initApp);
+</script>
 </body>
 </html>
